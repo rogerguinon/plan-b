@@ -1,8 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MainMenuScreen from '../screens/MainMenuScreen/MainMenuScreen';
-//import EventListScreen from '../screens/EventListScreen/EventListScreen'; // Para calendario o lista
-//import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import CalendarScreen from '../screens/CalendarScreen/CalendarScreen'; // Para calendario o lista
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -27,6 +27,8 @@ export default function AppTabs() {
       })}
     >
       <Tab.Screen name="Home" component={MainMenuScreen} />
+      <Tab.Screen name="Events" component={CalendarScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
