@@ -1,0 +1,14 @@
+# Forzar LF (Unix style) en todos los archivos de texto
+* text=auto eol=lf
+
+# Archivos binarios (Git no intenta convertir saltos de línea)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.mp4 binary
+*.mp3 binary
