@@ -7,8 +7,8 @@ const tabs = ['Quedadas actuales', 'Grupos'];
 const mockEvents = [
   {
     id: '1',
-    title: 'Partido Barça vs Inter',
-    date: 'May 6, 2025',
+    title: 'Partido Barça vs Espanyol',
+    date: 'May 16, 2025',
     description: 'Arnau, Martí y Omar',
     participants: ['A', 'J'],
   },
