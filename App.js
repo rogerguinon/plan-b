@@ -4,8 +4,8 @@ import LoginScreen from './src/screens/LoginScreen/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen/RegisterScreen';
 import AppTabs from './src/navigation/AppTabs';
 
-// const Stack = createNativeStackNavigator();
-
+const Stack = createNativeStackNavigator();
+// hola
 export default function App() {
   return (
     <NavigationContainer>
