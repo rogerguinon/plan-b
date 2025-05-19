@@ -8,27 +8,36 @@ export default function EventDetailScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{event.title}</Text>
+
       <View style={styles.infoBox}>
         <Text style={styles.subtitle}>{event.description}</Text>
       </View>
+
       <View style={styles.detailsRow}>
         <Ionicons name="calendar-outline" size={20} color="#d46bcf" />
         <Text style={styles.detailText}>{event.date}</Text>
         <Ionicons name="time-outline" size={20} color="#d46bcf" style={{ marginLeft: 10 }} />
         <Text style={styles.detailText}>18:00</Text>
       </View>
+
       {event.location && (
         <View style={styles.detailsRow}>
           <Ionicons name="location-outline" size={20} color="#d46bcf" />
           <Text style={styles.detailText}>{event.location}</Text>
         </View>
       )}
-      <View style={[styles.section, { backgroundColor: '#fad1f6' }]}>
+
+      {/* Botón de Votaciones */}
+      <TouchableOpacity
+        style={[styles.section, { backgroundColor: '#fad1f6' }]}
+        onPress={() => navigation.navigate('Surveys', { event })}
+      >
         <Text style={styles.sectionTitle}>Votaciones</Text>
-        <Text>Que bebida preferís</Text>
-        <Text>Qué día os va mejor?</Text>
+        <Text>¿Qué bebida preferís?</Text>
+        <Text>¿Qué día os va mejor?</Text>
         <MaterialCommunityIcons name="poll" size={30} color="white" style={styles.iconOverlay} />
-      </View>
+      </TouchableOpacity>
+
       <View style={[styles.section, { backgroundColor: '#b4f8c8' }]}>
         <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
         <Text>Ejemplo 1</Text>
