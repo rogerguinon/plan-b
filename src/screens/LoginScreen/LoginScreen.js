@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import { FIREBASE_API_KEY } from '../../config/firebaseRest';
+import { googleConfig } from '../../config/googleConfig';
 
 const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
@@ -38,20 +39,18 @@ export default function LoginScreen({ navigation }) {
   };
 
   const handleGoogleLogin = async () => {
-    const clientId = "794332066987-np3r15t5vrogdrq54ne9g5687cc70kh1.apps.googleusercontent.com"; 
+  const result = await AuthSession.startAsync({
+    authUrl: `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${googleConfig.clientId}&redirect_uri=${encodeURIComponent(
+      AuthSession.makeRedirectUri({ useProxy: true })
+    )}&scope=profile%20email`,
+  });
 
-    const result = await AuthSession.startAsync({
-      authUrl: `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(
-        redirectUri
-      )}&scope=profile%20email`,
-    });
-
-    if (result.type === 'success') {
-      navigation.replace('Main');
-    } else {
-      Alert.alert('Error', 'No se pudo iniciar sesión con Google.');
-    }
-  };
+  if (result.type === 'success') {
+    navigation.replace('Main');
+  } else {
+    Alert.alert('Error', 'No se pudo iniciar sesión con Google.');
+  }
+};
 
   return (
     <View style={styles.container}>
