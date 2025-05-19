@@ -25,13 +25,12 @@ export default function CreateSurveyScreen({ navigation }) {
   };
 
   const handleSubmit = () => {
-    // Aquí puedes enviar los datos a tu backend, contexto global, etc.
     console.log({
       title,
       comment,
       options: options.filter((o) => o.trim() !== ''),
     });
-    navigation.goBack(); // Vuelve a la pantalla anterior por ahora
+    navigation.goBack();
   };
 
   return (
@@ -48,32 +47,41 @@ export default function CreateSurveyScreen({ navigation }) {
             placeholder="Título de la encuesta"
             value={title}
             onChangeText={setTitle}
+            placeholderTextColor="#999"
           />
 
-          <Text style={styles.sectionTitle}>Opciones</Text>
+          <TextInput
+            style={[styles.input, { height: 80 }]}
+            placeholder="Comentarios (opcional)"
+            value={comment}
+            onChangeText={setComment}
+            multiline
+            placeholderTextColor="#999"
+          />
 
-          {options.map((option, index) => (
-            <View key={index} style={styles.optionRow}>
-              <TextInput
-                style={styles.optionInput}
-                placeholder={`Opción ${index + 1}`}
-                value={option}
-                onChangeText={(text) => handleOptionChange(text, index)}
-              />
-              {index >= 2 && (
-                <TouchableOpacity onPress={() => handleRemoveOption(index)}>
-                  <Text style={styles.removeButton}>–</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ))}
-
-          <TouchableOpacity onPress={handleAddOption}>
-            <Text style={styles.addOption}>+ Añadir opción</Text>
-          </TouchableOpacity>
+          <View style={styles.optionBox}>
+            <Text style={styles.optionTitle}>Opciones</Text>
+            {options.map((option, index) => (
+              <View key={index} style={styles.optionRow}>
+                <TextInput
+                  style={styles.optionInput}
+                  placeholder={`Opción ${index + 1}`}
+                  value={option}
+                  onChangeText={(text) => handleOptionChange(text, index)}
+                  placeholderTextColor="#999"
+                />
+              </View>
+            ))}
+            <TouchableOpacity onPress={handleAddOption}>
+              <Text style={styles.addOption}>+ Añadir opción</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => navigation.goBack()}
+            >
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
 
@@ -90,12 +98,12 @@ export default function CreateSurveyScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#e5e5e5',
+    backgroundColor: '#E5E5E5',
     flexGrow: 1,
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#d3cfd3',
+    backgroundColor: '#D9D9D9',
     padding: 20,
     borderRadius: 20,
   },
@@ -106,35 +114,34 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
   },
-  sectionTitle: {
+  optionBox: {
+    backgroundColor: '#D9D9D9',
+    borderColor: '#999',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+  },
+  optionTitle: {
     fontWeight: '600',
     marginBottom: 10,
   },
   optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 10,
   },
   optionInput: {
-    flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
   },
-  removeButton: {
-    color: '#d33',
-    fontSize: 24,
-    marginLeft: 10,
-  },
   addOption: {
-    color: '#c154c1',
-    marginTop: 10,
+    color: '#D48ABD',
     fontWeight: '600',
+    marginTop: 10,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -142,20 +149,20 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   cancelButton: {
-    backgroundColor: '#ccc',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  acceptButton: {
-    backgroundColor: '#908de3',
+    backgroundColor: '#B3B3B3',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
   },
   cancelText: {
-    color: '#333',
+    color: 'black',
     fontWeight: '600',
+  },
+  acceptButton: {
+    backgroundColor: '#D48ABD',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
   },
   acceptText: {
     color: 'white',
