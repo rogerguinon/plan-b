@@ -3,7 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MainMenuScreen from '../screens/MainMenuScreen/MainMenuScreen';
 import CalendarScreen from '../screens/CalendarScreen/CalendarScreen'; // Para calendario o lista
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
-import VotingScreen from '../screens/VotingScreen/VotingScreen';
+//import VotingScreen from '../screens/VotingScreen/VotingScreen';
+import CreateSurveyScreen from '../screens/CreateSurveyScreen/CreateSurveyScreen';
+import EditSurveyScreen from '../screens/EditSurveyScreen/EditSurveyScreen';
+import SurveysScreen from '../screens/SurveysScreen/SurveysScreen';
+
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -31,7 +35,9 @@ export default function AppTabs() {
       <Tab.Screen name="Home" component={MainMenuScreen} />
       <Tab.Screen name="Events" component={CalendarScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Votaciones" component={VotingScreen} />
+      <Tab.Screen name="Crear" component={CreateSurveyScreen} />
+      <Tab.Screen name="Editar" component={EditSurveyScreen} />
+      <Tab.Screen name="Ver" component={SurveysScreen} />
 
     </Tab.Navigator>
   );

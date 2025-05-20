@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
 
-export default function CreateSurveyScreen({ navigation }) {
+export default function EditSurveyScreen({ route, navigation }) {
+  const { survey } = route.params; // Recibe encuesta desde la navegación
+
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
-  const [options, setOptions] = useState(['', '']);
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    if (survey) {
+      setTitle(survey.title);
+      setComment(survey.comment);
+      setOptions(survey.options);
+    }
+  }, [survey]);
 
   const handleAddOption = () => {
-    navigation.navigate('Crear');
+    setOptions([...options, '']);
   };
 
   const handleOptionChange = (text, index) => {
@@ -25,12 +44,31 @@ export default function CreateSurveyScreen({ navigation }) {
   };
 
   const handleSubmit = () => {
-    const nuevaEncuesta = {
-      id: Date.now().toString(), // ID único
-      question: title,
+    // Aquí se actualizaría la encuesta en el backend o en el estado global
+    console.log('Encuesta actualizada:', {
+      title,
+      comment,
       options: options.filter((o) => o.trim() !== ''),
-    };
-    navigation.navigate('Ver', { nuevaEncuesta });
+    });
+    navigation.goBack();
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Eliminar encuesta',
+      '¿Estás seguro de que quieres eliminar esta encuesta?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            console.log('Encuesta eliminada:', survey.id);
+            navigation.goBack();
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -40,7 +78,7 @@ export default function CreateSurveyScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
-          <Text style={styles.title}>Nueva encuesta</Text>
+          <Text style={styles.title}>Editar encuesta</Text>
 
           <TextInput
             style={styles.input}
@@ -70,12 +108,21 @@ export default function CreateSurveyScreen({ navigation }) {
                   onChangeText={(text) => handleOptionChange(text, index)}
                   placeholderTextColor="#999"
                 />
+                {index >= 2 && (
+                  <TouchableOpacity onPress={() => handleRemoveOption(index)}>
+                    <Text style={styles.removeButton}>–</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ))}
             <TouchableOpacity onPress={handleAddOption}>
               <Text style={styles.addOption}>+ Añadir opción</Text>
             </TouchableOpacity>
           </View>
+
+          <TouchableOpacity onPress={handleDelete}>
+            <Text style={styles.deleteText}>Eliminar encuesta</Text>
+          </TouchableOpacity>
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
@@ -131,17 +178,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
   },
   optionInput: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
+  },
+  removeButton: {
+    color: '#C54A4A',
+    fontSize: 22,
+    marginLeft: 10,
   },
   addOption: {
     color: '#D48ABD',
     fontWeight: '600',
     marginTop: 10,
+  },
+  deleteText: {
+    color: '#D00000',
+    alignSelf: 'center',
+    marginTop: 25,
+    fontWeight: '600',
   },
   buttonRow: {
     flexDirection: 'row',
