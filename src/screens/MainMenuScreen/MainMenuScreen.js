@@ -35,23 +35,26 @@ export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
 
   const renderEvent = ({ item }) => (
-    <View style={styles.card}>
-      {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
-      <View style={{ flex: 1 }}>
-        <Text style={styles.eventTitle}>{item.title}</Text>
-        <Text style={styles.eventDesc}>{item.description}</Text>
-        {item.location && (
-          <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.locationText}>{item.location}</Text>
-          </View>
-        )}
+    <TouchableOpacity onPress={() => navigation.navigate('Detalles', { event: item })}>
+      <View style={styles.card}>
+        {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
+        <View style={{ flex: 1 }}>
+          <Text style={styles.eventTitle}>{item.title}</Text>
+          <Text style={styles.eventDesc}>{item.description}</Text>
+          {item.location && (
+            <View style={styles.locationRow}>
+              <Ionicons name="location-outline" size={16} color="#666" />
+              <Text style={styles.locationText}>{item.location}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.dateBox}>
+          <Text style={styles.dateText}>{item.date}</Text>
+        </View>
       </View>
-      <View style={styles.dateBox}>
-        <Text style={styles.dateText}>{item.date}</Text>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
+
 
   return (
     <View style={styles.container}>
