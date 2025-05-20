@@ -10,14 +10,14 @@ const Tab = createBottomTabNavigator();
 export default function AppTabs() {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Inicio"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') iconName = 'home-outline';
-          else if (route.name === 'Events') iconName = 'calendar-outline';
-          else if (route.name === 'Profile') iconName = 'person-outline';
+          if (route.name === 'Inicio') iconName = 'home-outline';
+          else if (route.name === 'Eventos') iconName = 'calendar-outline';
+          else if (route.name === 'Perfil') iconName = 'person-outline';
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -26,9 +26,9 @@ export default function AppTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={MainMenuScreen} />
-      <Tab.Screen name="Events" component={CalendarScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Inicio" component={MainMenuScreen} />
+      <Tab.Screen name="Eventos" component={CalendarScreen} />
+      <Tab.Screen name="Perfil" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
