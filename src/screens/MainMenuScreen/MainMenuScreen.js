@@ -36,7 +36,7 @@ export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
 
   const renderEvent = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Detalles', { event: item })}>
+    <TouchableOpacity onPress={() => navigation.navigate('Detalles', { event: item, survey})}>
       <View style={styles.card}>
         {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
         <View style={{ flex: 1 }}>

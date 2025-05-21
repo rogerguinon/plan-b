@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
+
 export default function EventDetailScreen({ route, navigation }) {
-  const { event } = route.params;
+  const { event, encuestas = [] } = route.params;
 
   return (
     <View style={styles.container}>
@@ -27,8 +28,13 @@ export default function EventDetailScreen({ route, navigation }) {
       <TouchableOpacity onPress={() => navigation.navigate('Encuestas', {id: event.id, eventTitle: event.title})}>
         <View style={[styles.section, { backgroundColor: '#fad1f6' }]}>
           <Text style={styles.sectionTitle}>Votaciones</Text>
-          <Text>Que bebida preferís</Text>
-          <Text>Qué día os va mejor?</Text>
+          {encuestas.length > 0 ? (
+            encuestas.map((encuesta) => (
+              <Text key={encuesta.id}>{encuesta.question}</Text>
+            ))
+          ) : (
+            <Text>No hay encuestas para esta quedada.</Text>
+          )}
           <MaterialCommunityIcons name="poll" size={30} color="white" style={styles.iconOverlay} />
         </View>
       </TouchableOpacity>
