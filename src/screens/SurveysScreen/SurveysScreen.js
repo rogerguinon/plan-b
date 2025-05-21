@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Animated } from 'react-native';
+
 
 import {
   View,
@@ -30,7 +32,18 @@ export default function ViewSurveysScreen({ route }) {
           {text:'Ron Pujol', votes: 7, voted : false},
           {text:'Agua', votes: 1, voted : false},
         ]
-      }
+      },
+      {
+      id: '2',
+      question: 'on voleu quedar?',
+      description: 'Compraremos las que tengan más de 3 votos',
+      options: [
+        { text: 'Fanta', votes: 1, voted: false },
+        { text: 'Coca Cola', votes: 3, voted: false },
+        { text: 'Ron Pujol', votes: 7, voted: false },
+        { text: 'Agua', votes: 1, voted: false },
+      ]
+    }
     ],
     '2': [
       {
@@ -145,9 +158,24 @@ export default function ViewSurveysScreen({ route }) {
                     {option.voted && (
                       <Ionicons name="checkmark-circle" size={18} color="green" style={{ marginRight: 6 }} />
                     )}
-                    <Text style={styles.surveyOptionText}>
+
+                    <Animated.Text
+                      style={[
+                        styles.surveyOptionText,
+                        {
+                          color: option.voted ? '#008000' : '#333', // Verd si ha votat
+                          opacity: option.voted ? 1 : 0.7, // més opac si no ha votat
+                          transform: [
+                            {
+                              scale: option.voted ? 1.05 : 1, // lleugera ampliació si votat
+                            },
+                          ],
+                        },
+                      ]}
+                    >
                       {option.text}
-                    </Text>
+                    </Animated.Text>
+
                     <Text style={styles.voteInfo}>
                       {option.votes} votos ({percentage}%)
                     </Text>

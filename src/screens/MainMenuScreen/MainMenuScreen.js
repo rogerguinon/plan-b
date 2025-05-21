@@ -32,11 +32,58 @@ const mockEvents = [
   },
 ];
 
+
+
+
+
+// EN PRINCIPIO ESTO NO VA AQUÍ, ES PARA PROBAR QUE FUCNIONE
+const surveyMap = {
+  '1': [
+    {
+      id: '1',
+      question: '¿Qué bebida preferís?',
+      description: 'Compraremos las que tengan más de 3 votos',
+      options: [
+        { text: 'Fanta', votes: 1, voted: false },
+        { text: 'Coca Cola', votes: 3, voted: false },
+        { text: 'Ron Pujol', votes: 7, voted: false },
+        { text: 'Agua', votes: 1, voted: false },
+      ]
+    }, 
+    {
+      id: '2',
+      question: 'on voleu quedar?',
+      description: 'Compraremos las que tengan más de 3 votos',
+      options: [
+        { text: 'Fanta', votes: 1, voted: false },
+        { text: 'Coca Cola', votes: 3, voted: false },
+        { text: 'Ron Pujol', votes: 7, voted: false },
+        { text: 'Agua', votes: 1, voted: false },
+      ]
+    }
+  ],
+  '2': [
+    {
+      id: '2',
+      question: '¿Qué día os va mejor?',
+      options: [
+        { text: '20/02/2026', votes: 3, voted: false },
+        { text: '21/02/2026', votes: 4, voted: false },
+      ]
+    }
+  ],
+};
+
+
+
+
+
+
 export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
 
   const renderEvent = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Detalles', { event: item, survey})}>
+    <TouchableOpacity onPress={() => {const encuestas = surveyMap[item.id] || [];navigation.navigate('Detalles', { event: item, encuestas });}}>
       <View style={styles.card}>
         {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
         <View style={{ flex: 1 }}>
