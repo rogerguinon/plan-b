@@ -4,6 +4,9 @@ import LoginScreen from './src/screens/LoginScreen/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen/RegisterScreen';
 import AppTabs from './src/navigation/AppTabs';
 import EventDetailScreen from './src/screens/EventDetailScreen/EventDetailScreen';
+import CreateSurveyScreen from './src/screens/CreateSurveyScreen/CreateSurveyScreen';
+import EditSurveyScreen from './src/screens/EditSurveyScreen/EditSurveyScreen';
+import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +18,9 @@ export default function App() {
         <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown: false}}/>
         <Stack.Screen name="Main" component={AppTabs} options={{headerShown: false}}/>
         <Stack.Screen name="Detalles" component={EventDetailScreen} />
+        <Stack.Screen name="Crear" component={CreateSurveyScreen} />
+        <Stack.Screen name="Editar" component={EditSurveyScreen} />
+        <Stack.Screen name="Encuestas" component={SurveysScreen} />  
       </Stack.Navigator>
     </NavigationContainer>
   )

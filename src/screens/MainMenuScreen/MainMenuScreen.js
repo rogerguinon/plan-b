@@ -11,21 +11,22 @@ const mockEvents = [
     date: 'May 16, 2025',
     description: 'Arnau, Martí y Omar',
     participants: ['A', 'J'],
+    location: 'Nou Camp Nou'
   },
   {
     id: '2',
     title: 'Concierto Bad Bunny',
     date: 'May 23, 2026',
-    description: 'Pillares cena y bebida para la cola',
-    location: 'Passeig Olímpic, 15-17, Sants-Montjuïc, Barcelona',
+    description: 'Llevad cena y bebida para la cola',
+    location: 'Estadi Olímpic Lluís Companys',
     participants: ['A', 'J', 'R'],
   },
   {
     id: '3',
     title: 'Cumple Martí',
     date: 'Feb 20, 2026',
-    description: 'Traeros vuestra bebida',
-    location: 'Carrer de Vilamarí, 90, Barcelona',
+    description: 'Estais invitados a mi fiesta de cumpleaños.',
+    location: 'C/ de Vilamarí, 90, Barcelona',
     participants: ['A', 'M', 'E'],
     image: 'https://randomuser.me/api/portraits/men/32.jpg', // ejemplo imagen
   },

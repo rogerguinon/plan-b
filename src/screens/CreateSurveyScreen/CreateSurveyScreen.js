@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { Alert } from 'react-native';
 
-export default function CreateSurveyScreen({ navigation }) {
+export default function CreateSurveyScreen({ route, navigation }) {
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
   const [options, setOptions] = useState(['', '']);
@@ -25,12 +26,32 @@ export default function CreateSurveyScreen({ navigation }) {
   };
 
   const handleSubmit = () => {
+    const trimmedTitle = title.trim();
+    const validOptions = options.filter(o => o.trim() !== '');
+
+    if (!trimmedTitle) {
+      Alert.alert('Error', 'Por favor, añade un título para la encuesta.');
+      return;
+    }
+
+    if (validOptions.length < 2) {
+      Alert.alert('Error', 'Debes añadir al menos dos opciones válidas.');
+      return;
+    }
+
     const nuevaEncuesta = {
-      id: Date.now().toString(), // ID único
-      question: title,
-      options: options.filter((o) => o.trim() !== ''),
+      id: Date.now().toString(),
+      question: trimmedTitle,
+      options: validOptions.map(optionText => ({text: optionText.trim(), votes: 0,})),
     };
-    navigation.navigate('Ver', { nuevaEncuesta });
+
+    const onAddSurvey = route.params?.onAddSurvey;
+    if (onAddSurvey) {
+      console.log('Enviando encuesta al padre:', nuevaEncuesta);
+      onAddSurvey(nuevaEncuesta);
+    }
+
+    navigation.goBack();
   };
 
   return (

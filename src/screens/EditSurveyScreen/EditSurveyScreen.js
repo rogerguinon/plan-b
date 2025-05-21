@@ -19,12 +19,14 @@ export default function EditSurveyScreen({ route, navigation }) {
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
-    if (survey) {
-      setTitle(survey.title);
-      setComment(survey.comment);
-      setOptions(survey.options);
+    if (route.params?.encuestaActualizada) {
+      setSurveys((prevSurveys) =>
+        prevSurveys.map((s) =>
+          s.id === route.params.encuestaActualizada.id ? route.params.encuestaActualizada : s
+        )
+      );
     }
-  }, [survey]);
+  }, [route.params?.encuestaActualizada]);
 
   const handleAddOption = () => {
     setOptions([...options, '']);

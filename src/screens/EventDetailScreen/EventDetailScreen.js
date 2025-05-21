@@ -23,17 +23,23 @@ export default function EventDetailScreen({ route, navigation }) {
           <Text style={styles.detailText}>{event.location}</Text>
         </View>
       )}
-      <View style={[styles.section, { backgroundColor: '#fad1f6' }]}>
-        <Text style={styles.sectionTitle}>Votaciones</Text>
-        <Text>Que bebida preferís</Text>
-        <Text>Qué día os va mejor?</Text>
-        <MaterialCommunityIcons name="poll" size={30} color="white" style={styles.iconOverlay} />
-      </View>
-      <View style={[styles.section, { backgroundColor: '#b4f8c8' }]}>
-        <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
-        <Text>Ejemplo 1</Text>
-        <Text>Ejemplo 2</Text>
-      </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate('Encuestas', {id: event.id, eventTitle: event.title})}>
+        <View style={[styles.section, { backgroundColor: '#fad1f6' }]}>
+          <Text style={styles.sectionTitle}>Votaciones</Text>
+          <Text>Que bebida preferís</Text>
+          <Text>Qué día os va mejor?</Text>
+          <MaterialCommunityIcons name="poll" size={30} color="white" style={styles.iconOverlay} />
+        </View>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate({/* PANTALLA DE GASTOS*/})}>
+        <View style={[styles.section, { backgroundColor: '#b4f8c8' }]}>
+          <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
+          <Text>Ejemplo 1</Text>
+          <Text>Ejemplo 2</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -12,56 +12,154 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function ViewSurveysScreen({ route }) {
   const navigation = useNavigation();
+  
+  
 
   // Encuestas dummy de ejemplo
-  const { eventTitle = 'Título de la quedada' } = route.params || {};
-  const [surveys, setSurveys] = useState([
-    {
+  const {id:eventId, eventTitle = 'Título de la quedada' } = route.params || {};
+
+  const [surveyMap, setSurveyMap] = useState({
+    '1': [
+      {
         id: '1',
         question: '¿Qué bebida preferís?',
-        options: ['Fanta', 'Coca Cola', 'Ron Pujol', 'Agua'],
-    },
-    {
+        description: 'Compraremos las que tengan más de 3 votos',
+        options: [
+          {text:'Fanta', votes: 1, voted : false},
+          {text:'Coca Cola', votes: 3, voted : false},
+          {text:'Ron Pujol', votes: 7, voted : false},
+          {text:'Agua', votes: 1, voted : false},
+        ]
+      }
+    ],
+    '2': [
+      {
         id: '2',
         question: '¿Qué día os va mejor?',
-        options: ['20/02/2026', '21/02/2026'],
-    },
-  ]);
+        options: [
+          {text:'20/02/2026', votes: 3, voted : false},
+          {text:'21/02/2026', votes: 4, voted : false},
+        ]
+      }
+    ],
+  });
+
+  
 
   useEffect(() => {
     if (route.params?.nuevaEncuesta) {
-        setSurveys((prev) => [...prev, route.params.nuevaEncuesta]);
+      const nuevas = [...surveys, route.params.nuevaEncuesta];
+      setSurveyMap((prev) => ({
+        ...prev,
+        [eventId]: nuevas,
+      }));
     }
-    }, [route.params?.nuevaEncuesta]);
+  }, [route.params?.nuevaEncuesta]);
 
+  const surveys = surveyMap[eventId] || [];
 
   const handleAddSurvey = () => {
-    navigation.navigate('CreateSurveyScreen');
+    navigation.navigate('Crear', {
+      eventId,
+      onAddSurvey: (newSurvey) => {
+        console.log('Recibida nueva encuesta:', newSurvey);
+        setSurveyMap((prevMap) => {
+          const updatedSurveys = [...(prevMap[eventId] || []), newSurvey];
+          return { ...prevMap, [eventId]: updatedSurveys };
+        });
+      },
+    }); 
   };
 
   const handleEditSurvey = (survey) => {
-    navigation.navigate('EditSurveyScreen', { survey });
+    navigation.navigate('Editar', { survey, eventId });
   };
+
+
+  const [userVotes, setUserVotes] = useState({});
+
+  const handleToggleVote = (surveyId, optionIndex) => {
+    setSurveyMap(prevMap => {
+      const updatedSurveys = prevMap[eventId].map(survey => {
+        if (survey.id !== surveyId) return survey;
+
+        const updatedOptions = survey.options.map((opt, idx) => {
+          if (idx !== optionIndex) return opt;
+
+          const hasVoted = opt.voted;
+          return {
+            ...opt,
+            votes: hasVoted ? opt.votes - 1 : opt.votes + 1,
+            voted: !hasVoted,
+          };
+        });
+
+        return {
+          ...survey,
+          options: updatedOptions,
+        };
+      });
+
+      return {
+        ...prevMap,
+        [eventId]: updatedSurveys,
+      };
+    });
+  };
+
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{eventTitle}</Text>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingRight: 10 }]}>
         {surveys.map((survey) => (
           <View key={survey.id} style={styles.surveyCard}>
             <View style={styles.cardHeader}>
               <Text style={styles.question}>{survey.question}</Text>
-              <TouchableOpacity onPress={() => handleEditSurvey(survey)}>
-                <Ionicons name="create-outline" size={20} color="#888" />
-              </TouchableOpacity>
-            </View>
-            {survey.options.map((option, idx) => (
-              <View key={idx} style={styles.optionBox}>
-                <Text style={styles.optionText}>{option}</Text>
+              <View style={styles.headerRight}>
+                <Text style={styles.totalVotesText}>
+                  {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos
+                </Text>
+                <TouchableOpacity onPress={() => handleEditSurvey(survey)} style={{ marginLeft: 10 }}>
+                  <Ionicons name="create-outline" size={20} color="#888" />
+                </TouchableOpacity>
               </View>
-            ))}
+            </View>
+
+            {survey.description && (
+              <Text style={styles.description}>{survey.description}</Text>
+            )}
+
+            {survey.options.map((option, idx) => {
+              const totalVotes = survey.options.reduce((sum, o) => sum + o.votes, 0);
+              const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100): 0;
+              
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.surveyOptionBox}
+                  onPress={() => handleToggleVote(survey.id, idx)}
+                >
+                  <View style={styles.optionRow}>
+                    {option.voted && (
+                      <Ionicons name="checkmark-circle" size={18} color="green" style={{ marginRight: 6 }} />
+                    )}
+                    <Text style={styles.surveyOptionText}>
+                      {option.text}
+                    </Text>
+                    <Text style={styles.voteInfo}>
+                      {option.votes} votos ({percentage}%)
+                    </Text>
+                  </View>
+                  <View style={styles.progressWrapper}>
+                    <View style={[styles.progressBarFill, { width: `${percentage}%` }]} />
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
+          
         ))}
       </ScrollView>
 
@@ -70,6 +168,7 @@ export default function ViewSurveysScreen({ route }) {
       </TouchableOpacity>
     </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -77,11 +176,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 16,
-    paddingTop: 40,
+    paddingTop: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
+  subtitle: {
+    fontSize: 22,
     marginBottom: 16,
     alignSelf: 'center',
   },
@@ -107,14 +211,50 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  optionBox: {
+  description: {
+    fontWeight: '300',
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  surveyOptionBox: {
     backgroundColor: '#fce7f3',
     padding: 10,
     borderRadius: 6,
+    marginBottom: 12,
+  },
+  surveyOptionText: {
+    fontSize: 15,
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
+  },
+  voteInfo: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'right',
+  },
+  optionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 6,
   },
-  optionText: {
-    fontSize: 14,
+  progressWrapper: {
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#c154c1',
+    overflow: 'hidden',
+  },
+  progressBarBackground: {
+    flex: 1,
+    backgroundColor: '#ddd',
+    borderRadius: 5,
+  },
+  progressBarFill: {
+    backgroundColor: '#c154c1',
+    height: '100%',
+    borderRadius: 5,
   },
   fab: {
     position: 'absolute',
@@ -127,5 +267,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  totalVotesText: {
+    fontSize: 12,
+    color: '#555',
+    fontWeight: '500',
+  },
+  votedOptionBox: {
+    backgroundColor: '#c154c1', // fondo más fuerte para opción votada
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+  surveyOptionBox: {
+    backgroundColor: '#fce7f3', // fondo normal
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 12,
   },
 });
