@@ -38,41 +38,90 @@ const mockEvents = [
 
 // EN PRINCIPIO ESTO NO VA AQUÍ, ES PARA PROBAR QUE FUCNIONE
 const surveyMap = {
-  '1': [
-    {
-      id: '1',
-      question: '¿Qué bebida preferís?',
-      description: 'Compraremos las que tengan más de 3 votos',
-      options: [
-        { text: 'Fanta', votes: 1, voted: false },
-        { text: 'Coca Cola', votes: 3, voted: false },
-        { text: 'Ron Pujol', votes: 7, voted: false },
-        { text: 'Agua', votes: 1, voted: false },
-      ]
-    }, 
-    {
-      id: '2',
-      question: 'on voleu quedar?',
-      description: 'Compraremos las que tengan más de 3 votos',
-      options: [
-        { text: 'Fanta', votes: 1, voted: false },
-        { text: 'Coca Cola', votes: 3, voted: false },
-        { text: 'Ron Pujol', votes: 7, voted: false },
-        { text: 'Agua', votes: 1, voted: false },
-      ]
-    }
-  ],
-  '2': [
-    {
-      id: '2',
-      question: '¿Qué día os va mejor?',
-      options: [
-        { text: '20/02/2026', votes: 3, voted: false },
-        { text: '21/02/2026', votes: 4, voted: false },
-      ]
-    }
-  ],
-};
+    '1': [
+      {
+        id: '1',
+        question: '¿Qué bebida preferís?',
+        description: 'Compraremos las que tengan más de 3 votos',
+        options: [
+          { text: 'Fanta', votes: 1, voted: false },
+          { text: 'Coca Cola', votes: 3, voted: false },
+          { text: 'Ron Pujol', votes: 7, voted: false },
+          { text: 'Agua', votes: 1, voted: false },
+        ]
+      },
+      {
+        id: '4',
+        question: '¿A qué hora quedamos para ir al partido?',
+        options: [
+          { text: '17:00', votes: 2, voted: false },
+          { text: '17:30', votes: 4, voted: false },
+          { text: '18:00', votes: 1, voted: false },
+        ]
+      },
+      {
+        id: '5',
+        question: '¿Dónde nos encontramos antes del partido?',
+        options: [
+          { text: 'Puerta principal', votes: 3, voted: false },
+          { text: 'Metro Collblanc', votes: 2, voted: false },
+          { text: 'Bar de la esquina', votes: 2, voted: false },
+        ]
+      }
+    ],
+    '2': [
+      {
+        id: '2',
+        question: '¿Qué día os va mejor?',
+        options: [
+          { text: '20/02/2026', votes: 3, voted: false },
+          { text: '21/02/2026', votes: 4, voted: false },
+        ]
+      },
+      {
+        id: '6',
+        question: '¿Queréis que llevemos pancarta?',
+        description: 'Para hacer más ruido en el concierto 😎',
+        options: [
+          { text: 'Sí, con luces LED', votes: 2, voted: false },
+          { text: 'Sí, pero algo sencillo', votes: 3, voted: false },
+          { text: 'No hace falta', votes: 4, voted: false },
+        ]
+      },
+      {
+        id: '7',
+        question: '¿Dónde quedamos antes del concierto?',
+        options: [
+          { text: 'Plaça Espanya', votes: 3, voted: false },
+          { text: 'En la cola directamente', votes: 5, voted: false },
+          { text: 'Parc de Montjuïc', votes: 2, voted: false },
+        ]
+      }
+    ],
+    '3': [
+      {
+        id: '8',
+        question: '¿Qué tipo de música preferís para la fiesta?',
+        options: [
+          { text: 'Reggaetón', votes: 4, voted: false },
+          { text: 'Pop', votes: 3, voted: false },
+          { text: 'Electrónica', votes: 2, voted: false },
+          { text: 'De todo un poco', votes: 5, voted: false },
+        ]
+      },
+      {
+        id: '9',
+        question: '¿Qué llevamos para compartir?',
+        description: 'Se aceptan bebidas y snacks 🎉',
+        options: [
+          { text: 'Patatas', votes: 3, voted: false },
+          { text: 'Refrescos', votes: 5, voted: false },
+          { text: 'Tarta casera', votes: 2, voted: false },
+          { text: 'Nada, solo asistiré 😅', votes: 1, voted: false },
+        ]
+      }
+    ]
+  };
 
 
 
@@ -83,7 +132,9 @@ export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
 
   const renderEvent = ({ item }) => (
-    <TouchableOpacity onPress={() => {const encuestas = surveyMap[item.id] || [];navigation.navigate('Detalles', { event: item, encuestas });}}>
+    <TouchableOpacity onPress={() => {
+      const encuestas = surveyMap[item.id] || [];
+      navigation.navigate('Detalles', { event: item, encuestas });}}>
       <View style={styles.card}>
         {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
         <View style={{ flex: 1 }}>
