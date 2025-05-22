@@ -26,7 +26,7 @@ export default function RegisterScreen({ navigation }) {
       const data = await res.json();
       if (res.ok) {
         Alert.alert('✅ Cuenta creada', 'Tu cuenta ha sido registrada correctamente.');
-        navigation.replace('Main'); // o navigation.navigate('Login')
+        navigation.replace('UserInfo');
       } else {
         Alert.alert('Error al registrarse', data.error?.message || 'Error desconocido');
       }
