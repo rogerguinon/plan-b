@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ScrollView
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { auth, db } from '../../firebase/firebaseConfig';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import {
+  doc, setDoc, getDoc, collection, query, where, onSnapshot
+} from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export default function UserInfoScreen({ navigation }) {
@@ -14,21 +16,22 @@ export default function UserInfoScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [uid, setUid] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    console.log('📢 authStateChanged:', user);
-    if (user) {
-      setUid(user.uid);
-      setEmail(user.email);
-      await loadUserData(user.uid);
-    }
-    setLoading(false);
-  });
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('📢 authStateChanged:', user);
+      if (user) {
+        setUid(user.uid);
+        setEmail(user.email);
+        await loadUserData(user.uid);
+        loadUserHistory(user.uid);
+      }
+      setLoading(false);
+    });
 
-  return unsubscribe;
-}, []);
-
+    return unsubscribe;
+  }, []);
 
   const loadUserData = async (uid) => {
     try {
@@ -45,6 +48,21 @@ export default function UserInfoScreen({ navigation }) {
     }
   };
 
+  const loadUserHistory = (uid) => {
+    const q = query(
+      collection(db, 'users', uid, 'meetings'),
+      where('status', '==', 'finalizada')
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setHistory(data);
+    });
+  };
+
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -53,7 +71,7 @@ export default function UserInfoScreen({ navigation }) {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images, // ✅ corregido warning
+      mediaTypes: ImagePicker.MediaType.Images,
       quality: 0.5,
     });
 
@@ -77,7 +95,7 @@ export default function UserInfoScreen({ navigation }) {
         email,
       });
       Alert.alert('✅ Datos guardados correctamente');
-      navigation.replace('Main'); // O simplemente navigation.goBack()
+      navigation.replace('Main');
     } catch (error) {
       console.error('❌ Error al guardar:', error);
       Alert.alert('Error', 'No se pudo guardar la información.');
@@ -93,43 +111,84 @@ export default function UserInfoScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      {photo ? (
-        <Image source={{ uri: photo }} style={styles.image} />
+  <ScrollView contentContainerStyle={styles.container}>
+    {photo ? (
+      <Image source={{ uri: photo }} style={styles.image} />
+    ) : (
+      <View style={styles.imagePlaceholder}>
+        <Text style={{ color: '#ccc' }}>Sin imagen</Text>
+      </View>
+    )}
+    <TouchableOpacity onPress={pickImage}>
+      <Text style={styles.edit}>Editar imagen</Text>
+    </TouchableOpacity>
+
+    <Text style={styles.label}>Correo electrónico</Text>
+    <TextInput style={styles.input} value={email} editable={false} />
+
+    <Text style={styles.label}>Nombre</Text>
+    <TextInput style={styles.input} value={name} onChangeText={setName} />
+
+    <Text style={styles.label}>Apellido</Text>
+    <TextInput style={styles.input} value={surname} onChangeText={setSurname} />
+
+    <TouchableOpacity style={styles.button} onPress={handleSave}>
+      <Text style={styles.buttonText}>Guardar información</Text>
+    </TouchableOpacity>
+
+    {/* HISTORIAL DE QUEDADAS */}
+    <View style={styles.historyContainer}>
+      <Text style={styles.historyHeader}>📚 Historial de quedadas</Text>
+      {history.length === 0 ? (
+        <Text style={styles.noMeetings}>No hay quedadas finalizadas aún.</Text>
       ) : (
-        <View style={styles.imagePlaceholder}>
-          <Text style={{ color: '#ccc' }}>Sin imagen</Text>
-        </View>
+        history.map((item) => (
+          <View key={item.id} style={styles.card}>
+            <Text style={styles.cardTitle}>{item.title || 'Quedada sin título'}</Text>
+            <Text style={styles.cardDate}>
+              {item.date
+                ? new Date(item.date).toLocaleDateString()
+                : 'Fecha no disponible'}
+            </Text>
+          </View>
+        ))
       )}
-      <TouchableOpacity onPress={pickImage}>
-        <Text style={styles.edit}>Editar imagen</Text>
-      </TouchableOpacity>
-
-      <Text style={styles.label}>Correo electrónico</Text>
-      <TextInput style={styles.input} value={email} editable={false} />
-
-      <Text style={styles.label}>Nombre</Text>
-      <TextInput style={styles.input} value={name} onChangeText={setName} />
-
-      <Text style={styles.label}>Apellido</Text>
-      <TextInput style={styles.input} value={surname} onChangeText={setSurname} />
-
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Guardar información</Text>
-      </TouchableOpacity>
     </View>
-  );
+  </ScrollView>
+);
+
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  image: { width: 100, height: 100, borderRadius: 50 },
-  imagePlaceholder: {
-    width: 100, height: 100, borderRadius: 50,
-    backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center'
+  container: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+    alignItems: 'center',
   },
-  edit: { color: '#d46bcf', marginVertical: 10 },
-  label: { alignSelf: 'flex-start', marginTop: 15, color: '#d46bcf' },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  imagePlaceholder: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  edit: {
+    color: '#d46bcf',
+    marginVertical: 10,
+  },
+  label: {
+    alignSelf: 'flex-start',
+    marginTop: 15,
+    color: '#d46bcf',
+    fontWeight: '600',
+  },
   input: {
     backgroundColor: '#f8e7f9',
     width: '100%',
@@ -147,7 +206,55 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
+  // 🎨 HISTORIAL
+  historyContainer: {
+    marginTop: 30,
+    width: '100%',
+    backgroundColor: '#fce9fb',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  historyHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#8e3d8e',
+    textAlign: 'center',
+  },
+  noMeetings: {
+    textAlign: 'center',
+    color: '#888',
+    fontStyle: 'italic',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    color: '#d46bcf',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  cardDate: {
+    fontSize: 12,
+    color: '#555',
+  },
 });
-
-

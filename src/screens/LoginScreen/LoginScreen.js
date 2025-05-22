@@ -3,8 +3,10 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
-import { auth } from '../../firebase/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../../firebase/firebaseConfig'; // ✅ Asegúrate de tener esto
+
 
 const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
@@ -13,15 +15,28 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Sesión iniciada:', userCredential.user);
-      navigation.replace('UserInfo'); // o 'Main' si prefieres
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error al iniciar sesión', error.message);
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    console.log('✅ Sesión iniciada:', user);
+
+    // Verifica si el perfil está completo en Firestore
+    const userRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists() && docSnap.data()?.name) {
+      navigation.replace('Main'); // ya tiene perfil
+    } else {
+      navigation.replace('UserInfo'); // redirigir si no tiene
     }
-  };
+
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Error al iniciar sesión', error.message);
+  }
+};
+
 
   const handleGoogleLogin = async () => {
     const clientId = "794332066987-np3r15t5vrogdrq54ne9g5687cc70kh1.apps.googleusercontent.com";
