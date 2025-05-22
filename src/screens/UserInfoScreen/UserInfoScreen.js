@@ -12,42 +12,49 @@ export default function UserInfoScreen({ navigation }) {
   const [surname, setSurname] = useState('');
   const [photo, setPhoto] = useState(null);
   const [email, setEmail] = useState('');
+  const [uid, setUid] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    console.log('📢 authStateChanged:', user);
     if (user) {
+      setUid(user.uid);
       setEmail(user.email);
       await loadUserData(user.uid);
-    } else {
-      Alert.alert('Error', 'No hay usuario autenticado');
     }
+    setLoading(false);
   });
 
   return unsubscribe;
 }, []);
 
+
   const loadUserData = async (uid) => {
-    const userRef = doc(db, 'users', uid);
-    const docSnap = await getDoc(userRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      setName(data.name || '');
-      setSurname(data.surname || '');
-      setPhoto(data.photo || null);
+    try {
+      const userRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setName(data.name || '');
+        setSurname(data.surname || '');
+        setPhoto(data.photo || null);
+      }
+    } catch (error) {
+      console.log('❌ Error al cargar datos:', error);
     }
   };
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permission.granted === false) {
-      Alert.alert('Permiso denegado', 'Necesitas permitir el acceso a la galería.');
+    if (!permission.granted) {
+      Alert.alert('Permiso denegado', 'Se necesita acceso a la galería');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.Images, // ✅ corregido warning
       quality: 0.5,
-      base64: true,
     });
 
     if (!result.canceled) {
@@ -57,21 +64,33 @@ export default function UserInfoScreen({ navigation }) {
   };
 
   const handleSave = async () => {
+    if (!uid) {
+      Alert.alert('Error', 'No se pudo guardar porque no hay usuario autenticado.');
+      return;
+    }
+
     try {
-      const uid = auth.currentUser.uid;
       await setDoc(doc(db, 'users', uid), {
         name,
         surname,
         photo,
         email,
       });
-      Alert.alert('✅ Datos guardados');
-      navigation.replace('Main');
+      Alert.alert('✅ Datos guardados correctamente');
+      navigation.replace('Main'); // O simplemente navigation.goBack()
     } catch (error) {
-      console.error(error);
-      Alert.alert('❌ Error al guardar');
+      console.error('❌ Error al guardar:', error);
+      Alert.alert('Error', 'No se pudo guardar la información.');
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ fontSize: 16, color: '#aaa' }}>Cargando usuario...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -103,7 +122,7 @@ export default function UserInfoScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff', alignItems: 'center' },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   image: { width: 100, height: 100, borderRadius: 50 },
   imagePlaceholder: {
     width: 100, height: 100, borderRadius: 50,
@@ -130,3 +149,5 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: '#fff', fontWeight: 'bold' },
 });
+
+

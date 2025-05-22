@@ -1,6 +1,10 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  initializeAuth,
+  getReactNativePersistence,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBkmx6zsuGmN6aR_bf0JC91gwQvVDYFcE",
@@ -11,10 +15,14 @@ const firebaseConfig = {
   appId: "1:435441365762:web:e167886875515af3bc481b"
 };
 
-// Este bloque asegura que Firebase solo se inicialice una vez
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
+// ✅ Inicializa auth con persistencia
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage),
+});
+
 const db = getFirestore(app);
 
 export { auth, db };
+
