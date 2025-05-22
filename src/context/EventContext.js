@@ -15,12 +15,10 @@ const Events = [
     description: 'Partido de fútbol amistoso',
     location: 'Nou Camp Nou',
     participants: [
-      { name: 'Marc', image: 'https://randomuser.me/api/portraits/men/10.jpg' },
-      { name: 'Sergi', image: 'https://randomuser.me/api/portraits/men/22.jpg' },
-      { name: 'Clara', image: 'https://randomuser.me/api/portraits/women/35.jpg' },
-      { name: 'Laura', image: 'https://randomuser.me/api/portraits/women/45.jpg' },
-      { name: 'Jordi', image: 'https://randomuser.me/api/portraits/men/52.jpg' },
-      { name: 'Marta', image: 'https://randomuser.me/api/portraits/women/27.jpg' },
+      { name: 'Marc', image: 'https://randomuser.me/api/portraits/men/10.jpg', asistencia: '-' },
+      { name: 'Sergi', image: 'https://randomuser.me/api/portraits/men/22.jpg', asistencia: '-' },
+      { name: 'Clara', image: 'https://randomuser.me/api/portraits/women/35.jpg', asistencia: '-' },
+      { name: 'Laura', image: 'https://randomuser.me/api/portraits/women/45.jpg', asistencia: 'si' },
     ],
   },
   {
@@ -30,13 +28,13 @@ const Events = [
     description: 'Llevad cena y bebida para la cola',
     location: 'Estadi Olímpic Lluís Companys',
     participants: [
-      { name: 'Eva', image: 'https://randomuser.me/api/portraits/women/11.jpg' },
-      { name: 'Pau', image: 'https://randomuser.me/api/portraits/men/33.jpg' },
-      { name: 'Núria', image: 'https://randomuser.me/api/portraits/women/44.jpg' },
-      { name: 'Daniel', image: 'https://randomuser.me/api/portraits/men/55.jpg' },
-      { name: 'Cristina', image: 'https://randomuser.me/api/portraits/women/66.jpg' },
-      { name: 'Alex', image: 'https://randomuser.me/api/portraits/men/77.jpg' },
-      { name: 'Carla', image: 'https://randomuser.me/api/portraits/women/88.jpg' },
+      { name: 'Eva', image: 'https://randomuser.me/api/portraits/women/11.jpg', asistencia: 'no' },
+      { name: 'Pau', image: 'https://randomuser.me/api/portraits/men/33.jpg', asistencia: 'si' },
+      { name: 'Núria', image: 'https://randomuser.me/api/portraits/women/44.jpg', asistencia: '-' },
+      { name: 'Daniel', image: 'https://randomuser.me/api/portraits/men/55.jpg', asistencia: 'si' },
+      { name: 'Cristina', image: 'https://randomuser.me/api/portraits/women/66.jpg',asistencia: '-' },
+      { name: 'Alex', image: 'https://randomuser.me/api/portraits/men/77.jpg', asistencia: 'si' },
+      { name: 'Carla', image: 'https://randomuser.me/api/portraits/women/88.jpg', asistencia: 'no' },
     ],
   },
   {
@@ -47,14 +45,14 @@ const Events = [
     location: 'C/ de Vilamarí, 90, Barcelona',
     image: 'https://randomuser.me/api/portraits/women/32.jpg',
     participants: [
-      { name: 'Sandra', image: 'https://randomuser.me/api/portraits/women/32.jpg' },
-      { name: 'Hugo', image: 'https://randomuser.me/api/portraits/men/12.jpg' },
-      { name: 'Laia', image: 'https://randomuser.me/api/portraits/women/14.jpg' },
-      { name: 'Oriol', image: 'https://randomuser.me/api/portraits/men/18.jpg' },
-      { name: 'Nora', image: 'https://randomuser.me/api/portraits/women/21.jpg' },
-      { name: 'Lucas', image: 'https://randomuser.me/api/portraits/men/25.jpg' },
-      { name: 'Irene', image: 'https://randomuser.me/api/portraits/women/29.jpg' },
-      { name: 'Marcelo', image: 'https://randomuser.me/api/portraits/men/31.jpg' },
+      { name: 'Sandra', image: 'https://randomuser.me/api/portraits/women/32.jpg', asistencia: '-' },
+      { name: 'Hugo', image: 'https://randomuser.me/api/portraits/men/12.jpg', asistencia: '-' },
+      { name: 'Laia', image: 'https://randomuser.me/api/portraits/women/14.jpg', asistencia: '-' },
+      { name: 'Oriol', image: 'https://randomuser.me/api/portraits/men/18.jpg', asistencia: '-' },
+      { name: 'Nora', image: 'https://randomuser.me/api/portraits/women/21.jpg', asistencia: '-' },
+      { name: 'Lucas', image: 'https://randomuser.me/api/portraits/men/25.jpg', asistencia: '-' },
+      { name: 'Irene', image: 'https://randomuser.me/api/portraits/women/29.jpg', asistencia: '-' },
+      { name: 'Marcelo', image: 'https://randomuser.me/api/portraits/men/31.jpg', asistencia: '-' },
     ],
   },
 ];
@@ -64,17 +62,6 @@ const initialSurveyMap = {
   '1': [
     {
       id: '1',
-      question: '¿Qué bebida preferís?',
-      description: 'Compraremos las que tengan más de 3 votos',
-      options: [
-        { text: 'Fanta', votes: 1, voted: false },
-        { text: 'Coca Cola', votes: 3, voted: false },
-        { text: 'Ron Pujol', votes: 7, voted: false },
-        { text: 'Agua', votes: 1, voted: false },
-      ]
-    },
-    {
-      id: '4',
       question: '¿A qué hora quedamos para ir al partido?',
       options: [
         { text: '17:00', votes: 2, voted: false },
@@ -83,7 +70,7 @@ const initialSurveyMap = {
       ]
     },
     {
-      id: '5',
+      id: '2',
       question: '¿Dónde nos encontramos antes del partido?',
       options: [
         { text: 'Puerta principal', votes: 3, voted: false },
@@ -94,7 +81,7 @@ const initialSurveyMap = {
   ],
   '2': [
     {
-      id: '2',
+      id: '1',
       question: '¿Qué día os va mejor?',
       options: [
         { text: '20/02/2026', votes: 3, voted: false },
@@ -102,7 +89,7 @@ const initialSurveyMap = {
       ]
     },
     {
-      id: '6',
+      id: '2',
       question: '¿Queréis que llevemos pancarta?',
       description: 'Para hacer más ruido en el concierto 😎',
       options: [
@@ -112,7 +99,7 @@ const initialSurveyMap = {
       ]
     },
     {
-      id: '7',
+      id: '3',
       question: '¿Dónde quedamos antes del concierto?',
       options: [
         { text: 'Plaça Espanya', votes: 3, voted: false },
@@ -123,7 +110,7 @@ const initialSurveyMap = {
   ],
   '3': [
     {
-      id: '8',
+      id: '1',
       question: '¿Qué tipo de música preferís para la fiesta?',
       options: [
         { text: 'Reggaetón', votes: 4, voted: false },
@@ -133,7 +120,7 @@ const initialSurveyMap = {
       ]
     },
     {
-      id: '9',
+      id: '2',
       question: '¿Qué llevamos para compartir?',
       description: 'Se aceptan bebidas y snacks 🎉',
       options: [
