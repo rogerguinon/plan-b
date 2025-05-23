@@ -11,12 +11,13 @@ const Events = [
   {
     id: '1',
     title: 'Partido Barça vs Espanyol',
+    description: 'La idea es quedar antes para ir todos juntos',
     date: 'May 16, 2025',
-    description: 'Partido de fútbol amistoso',
+    time: '21:00',
     location: 'Nou Camp Nou',
     participants: [
       { name: 'Marc', image: 'https://randomuser.me/api/portraits/men/10.jpg', asistencia: '-' },
-      { name: 'Sergi', image: 'https://randomuser.me/api/portraits/men/22.jpg', asistencia: '-' },
+      { name: 'Sergi', image: 'https://randomuser.me/api/portraits/men/22.jpg', asistencia: 'no' },
       { name: 'Clara', image: 'https://randomuser.me/api/portraits/women/35.jpg', asistencia: '-' },
       { name: 'Laura', image: 'https://randomuser.me/api/portraits/women/45.jpg', asistencia: 'si' },
     ],
@@ -24,9 +25,11 @@ const Events = [
   {
     id: '2',
     title: 'Concierto Bad Bunny',
-    date: 'May 23, 2026',
     description: 'Llevad cena y bebida para la cola',
+    date: 'May 23, 2026',
+    time: '20:00',
     location: 'Estadi Olímpic Lluís Companys',
+    image: 'https://legendswillneverdie.com/wp-content/uploads/2025/01/photo-output-3.jpg?w=1024',
     participants: [
       { name: 'Eva', image: 'https://randomuser.me/api/portraits/women/11.jpg', asistencia: 'no' },
       { name: 'Pau', image: 'https://randomuser.me/api/portraits/men/33.jpg', asistencia: 'si' },
@@ -40,25 +43,26 @@ const Events = [
   {
     id: '3',
     title: 'Cumpleaños de Sandra',
-    date: 'Feb 20, 2026',
     description: 'Estáis invitados a la fiesta de cumpleaños.',
+    date: 'Feb 20, 2026',
+    time: '18:00',
     location: 'C/ de Vilamarí, 90, Barcelona',
-    image: 'https://randomuser.me/api/portraits/women/32.jpg',
+    image: 'https://m.media-amazon.com/images/I/617kglB+Y6L._AC_UF1000,1000_QL80_.jpg',
     participants: [
-      { name: 'Sandra', image: 'https://randomuser.me/api/portraits/women/32.jpg', asistencia: '-' },
-      { name: 'Hugo', image: 'https://randomuser.me/api/portraits/men/12.jpg', asistencia: '-' },
-      { name: 'Laia', image: 'https://randomuser.me/api/portraits/women/14.jpg', asistencia: '-' },
-      { name: 'Oriol', image: 'https://randomuser.me/api/portraits/men/18.jpg', asistencia: '-' },
-      { name: 'Nora', image: 'https://randomuser.me/api/portraits/women/21.jpg', asistencia: '-' },
-      { name: 'Lucas', image: 'https://randomuser.me/api/portraits/men/25.jpg', asistencia: '-' },
-      { name: 'Irene', image: 'https://randomuser.me/api/portraits/women/29.jpg', asistencia: '-' },
+      { name: 'Sandra', image: 'https://randomuser.me/api/portraits/women/32.jpg', asistencia: 'si' },
+      { name: 'Hugo', image: 'https://randomuser.me/api/portraits/men/12.jpg', asistencia: 'si' },
+      { name: 'Laia', image: 'https://randomuser.me/api/portraits/women/14.jpg', asistencia: 'si' },
+      { name: 'Oriol', image: 'https://randomuser.me/api/portraits/men/18.jpg', asistencia: 'si' },
+      { name: 'Nora', image: 'https://randomuser.me/api/portraits/women/21.jpg', asistencia: 'no' },
+      { name: 'Lucas', image: 'https://randomuser.me/api/portraits/men/25.jpg', asistencia: 'si' },
+      { name: 'Irene', image: 'https://randomuser.me/api/portraits/women/29.jpg', asistencia: 'si' },
       { name: 'Marcelo', image: 'https://randomuser.me/api/portraits/men/31.jpg', asistencia: '-' },
     ],
   },
 ];
 
 // ENCUESTAS (renombramos para evitar conflicto con el estado)
-const initialSurveyMap = {
+const SurveyMap = {
   '1': [
     {
       id: '1',
@@ -140,7 +144,7 @@ export const EventProvider = ({ children }) => {
   const [eventos, setEventos] = useState(Events);
 
   // Estado inicial de encuestas con initialSurveyMap
-  const [surveyMap, setSurveyMap] = useState(initialSurveyMap);
+  const [surveyMap, setSurveyMap] = useState(SurveyMap);
 
   // Estado participantesPorEvento: lo generamos a partir de los participantes dentro de cada evento
   const [participantesPorEvento, setParticipantesPorEvento] = useState(() => {

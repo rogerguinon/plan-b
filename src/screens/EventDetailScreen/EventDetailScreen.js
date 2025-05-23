@@ -1,64 +1,54 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Modal, TextInput, Button } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, Modal} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEventos } from '../../context/EventContext';
 
 
 export default function EventDetailScreen({ route, navigation }) {
-  const { event, encuestas = [] } = route.params;
-  const { participantesPorEvento } = useEventos();
-  const toggleParticipants = () => {setShowParticipants(!showParticipants);};
+  const { event } = route.params;
+  const { surveyMap, participantesPorEvento } = useEventos();
+  const encuestas = surveyMap[event.id] || [];
   
-  const participantes = participantesPorEvento[event.id] || event.participants || [];
-
-  const participantesAsistencia = React.useMemo(() => {
-    const prioridad = { 'si': 0, 'no': 1, '-': 2 };
-    return participantes.slice().sort((a, b) => {
-      return (prioridad[a.asistencia] ?? 3) - (prioridad[b.asistencia] ?? 3);
-    });
-  }, [participantes]);
-
-
-  // MODIFICAR CUANDO ESTE HECHO EL USUARIO
-  const usuario = { name: 'Arnau', image: 'https://randomuser.me/portraits/men/36.jpg' };
-  //const { usuario } = useAuth();
-
-
-  const participantesOrdenados = [usuario, ...participantes.filter(p => p.name !== usuario.name)];
-  
-  const [showParticipants, setShowParticipants] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
-  // BUSCADOR
-  const [searchText, setSearchText] = useState('');
-  const [participantesFiltrados, setFilteredParticipants] = useState(participantesOrdenados);
-  const alturaParticipante = 65;
-  const separacion = 1;
-  const maxHeight = 550;
-  const numParticipantes = participantes.length;
-  const alturaTotal = numParticipantes * (alturaParticipante + separacion);
-  const alturaContenedor = Math.min(alturaTotal, maxHeight);
+  // CAMBIAR CUANDO EL USUARIO ESTE DEFINIDO
+  const usuario = { name: 'Arnau', image: 'https://randomuser.me/portraits/men/36.jpg', asistencia: 'si'};
+
+  const participantesRaw = participantesPorEvento[event.id] || event.participants || [];
+  const participantes = React.useMemo(() => [
+    { ...usuario, name: `Tú` },
+    ...participantesRaw.filter(p => p && p.name !== usuario.name),
+  ], [participantesRaw, usuario.name]);
 
 
-  React.useEffect(() => {
-    const resultadosFiltrados = participantesAsistencia.filter((p) =>
+
+  const participantesAsistencia = useMemo(() => {
+    const prioridad = { 'si': 0, 'no': 1, '-': 2 };
+    return participantes.slice().sort((a, b) =>
+      (prioridad[a.asistencia] ?? 3) - (prioridad[b.asistencia] ?? 3)
+    );
+  }, [participantes]);
+
+  const [participantesFiltrados, setFilteredParticipants] = useState(participantes);
+
+  useEffect(() => {
+    const filtrados = participantesAsistencia.filter(p =>
       p.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    setFilteredParticipants(resultadosFiltrados);
+    setFilteredParticipants(filtrados);
   }, [searchText, participantesAsistencia]);
   
 
+  const secciones = {
+    si: 'Confirmados',
+    no: 'No asistirán',
+    '-': 'Sin respuesta',
+  };
 
-  const renderParticipantTarjeta = ({ item }) => (
-    <View style={styles.participantRow}>
-      <Image source={{ uri: item.image }} style={styles.participantImage} />
-      <Text style={styles.participantName}>{item.name}</Text>
-    </View>
-  );
-  
 
-  // Para la lista completa (modal) con estilos más grandes y separadores
-  const renderParticipantCompleto = ({ item }) => {
+  const renderParticipantCompleto = ({ item, index }) => {
     let iconName = '';
     let iconColor = '';
 
@@ -76,115 +66,89 @@ export default function EventDetailScreen({ route, navigation }) {
         iconColor = 'gray';
         break;
     }
+    const asistenciaActual = item.asistencia;
+    const asistenciaSiguiente = participantesFiltrados[index + 1]?.asistencia;
+    const showTitle = index === 0 || asistenciaActual !== participantesFiltrados[index - 1]?.asistencia;
+    const showSeparator = asistenciaActual === asistenciaSiguiente;
 
     return (
-      <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 10,
-        justifyContent: 'space-between'
-      }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
-            source={{ uri: item.image }}
-            style={{ width: 40, height: 40, borderRadius: 25, marginRight: 15 }}
+      <View>
+        {showTitle && (
+          <Text style={styles.sectionHeader}>
+            {secciones[asistenciaActual] || 'Otros'}
+          </Text>
+        )}
+        
+        <View style={styles.participantRowCompleto}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Image
+              source={{ uri: item.image }}
+              style={styles.participantImageCompleto}
+            />
+            <Text style={styles.participantNameCompleto}>{item.name}</Text>
+          </View>
+          <MaterialCommunityIcons
+            name={iconName}
+            size={18}
+            color={iconColor}
+            style={{ marginRight: 5 }}
           />
-          <Text style={{ fontSize: 16, color: '#333'}}>{item.name}</Text>
         </View>
 
-        <MaterialCommunityIcons
-          name={iconName}
-          size={18}
-          color={iconColor}
-          style={{ marginRight: 5 }}
-        />
+        {/* Separador solo si no es el último de su grupo */}
+        {showSeparator && (
+          <View style={{ borderBottomWidth: 1, borderColor: '#ccc', marginVertical: 5 }} />
+        )}
       </View>
     );
   };
-
+  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{event.title}</Text>
+
       <View style={styles.infoBox}>
         <Text style={styles.subtitle}>{event.description}</Text>
       </View>
 
-      <View style={styles.detailsRow}>
-        <Ionicons name="calendar-outline" size={20} color="#d46bcf" />
-        <Text style={styles.detailText}>{event.date}</Text>
-        <Ionicons name="time-outline" size={20} color="#d46bcf" style={{ marginLeft: 10 }} />
-        <Text style={styles.detailText}>18:00</Text>
+      <View style={styles.detailsColumn}>
+        <View style={styles.detailsRow}>
+          <Ionicons name="location-outline" size={20} color="#d46bcf" />
+          <Text style={styles.detailText}>{event.location}</Text>
+        </View>
+
+        <View style={styles.detailsRow}>
+          <Ionicons name="calendar-outline" size={20} color="#d46bcf" />
+          <Text style={styles.detailText}>{event.date}</Text>
+        </View>
+
+        <View style={styles.detailsRow}>
+          <Ionicons name="time-outline" size={20} color="#d46bcf" />
+          <Text style={styles.detailText}>{event.time}</Text>
+        </View>
       </View>
 
-      {/* Participantes desplegable */}
-      <TouchableOpacity onPress={toggleParticipants}>
-        <View style={[styles.section, { backgroundColor: '#cce5ff'}]}>
+      {/* Tarjeta de Participantes */}
+      <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <View style={[styles.section, styles.participantsSection]}>
           <Text style={styles.sectionTitle}>
-            {participantesOrdenados.length} Participantes
+            {participantes.length} Participantes
           </Text>
-
-          {showParticipants && (
-            <>
-              <View style={{ maxHeight: 168, marginVertical: 10 }}>
-                <FlatList
-                  data={ participantesOrdenados.slice(0,  4)}
-                  keyExtractor={(item, index) => item.name + index}
-                  renderItem={renderParticipantTarjeta}
-                  numColumns={2}
-                  columnWrapperStyle={{
-                    justifyContent: 'space-between',
-                    marginBottom: 5,
-                  }}
-                  ListEmptyComponent={<Text>No hay participantes</Text>}
-                />
-              </View>
-
-              <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.showAllButton}>
-                <Text style={styles.showAllButtonText}>Mostrar todos</Text>
-                <Text style={styles.arrowIcon}>{'>'}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-
-          <MaterialCommunityIcons
-            name={showParticipants ? 'chevron-up' : 'chevron-down'}
-            size={30}
-            color="white"
-            style={styles.iconOverlay}
-          />
-
+          <MaterialCommunityIcons name="chevron-right" size={30} color="white" />
         </View>
       </TouchableOpacity>
 
+      {/* Modal con todos los participantes */}
       <Modal visible={modalVisible} animationType="slide">
-        <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
-          {/* Título */}
-          <Text style={{
-            fontSize: 22,
-            fontWeight: 'bold',
-            marginTop: 60,
-            textAlign: 'center',
-            color: '#333',
-            marginBottom: 20,
-          }}>
-            Todos los participantes
-          </Text>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Todos los participantes</Text>
+          <Text style={styles.modalSubtitle}>{participantes.length} personas</Text>
 
           {/* Buscador */}
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            borderColor: '#ccc',
-            borderWidth: 1,
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            backgroundColor: '#f9f9f9',
-            marginBottom: 20,
-            height: 40,
-          }}>
+          <View style={styles.searchBox}>
             <TextInput
-              style={{ flex: 1, height: '100%' }}
+              style={styles.searchInput}
               placeholder="Buscar participante"
               value={searchText}
               onChangeText={setSearchText}
@@ -193,49 +157,61 @@ export default function EventDetailScreen({ route, navigation }) {
             <Ionicons name="search" size={20} color="#999" />
           </View>
 
-          {/* Recinto del listado con borde rosa y fondo transparente, altura adaptativa hasta max 400 */}
-          <View style={{
-            height: alturaContenedor,
-            borderWidth: 2,
-            borderColor: '#d46bcf',
-            borderRadius: 12,
-            backgroundColor: 'rgba(212, 107, 207, 0.1)',
-            padding: 10,
-          }}>
-            <FlatList
-              data={participantesFiltrados}
-              keyExtractor={(item, index) => item.name + index}
-              renderItem={renderParticipantCompleto}
-              ItemSeparatorComponent={() => (
-                <View style={{ height: separacion, backgroundColor: '#ddd' }} />
-              )}
-              ListEmptyComponent={<Text>No se encontraron participantes</Text>}
-              contentContainerStyle={{ paddingBottom: 10 }}
-              scrollEnabled={alturaTotal > maxHeight} // solo scroll si alturaTotal > maxHeight
+          {/* Línea rosa justo antes de la lista */}
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderColor: '#d46bcf',
+                width: '100%',
+              }}
             />
-          </View>
 
-          {/* Botón cerrar debajo del recuadro con separación fija */}
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            style={{
-              marginTop: 20,
-              alignSelf: 'center',
-              backgroundColor: '#e0e0e0',
-              paddingVertical: 10,
-              paddingHorizontal: 20,
-              borderRadius: 10,
-            }}
-          >
-            <Text style={{ fontSize: 16, color: '#333' }}>Cerrar</Text>
-          </TouchableOpacity>
-          
+          {/* Lista con scroll dinámico */}
+          <View style={{ paddingHorizontal: 20, flex: 1, maxHeight: 500}}>
+            <ScrollView
+              showsVerticalScrollIndicator={true} 
+              style={{ flex: 1 }} 
+              contentContainerStyle={{ paddingBottom: 20}}
+            >
+              {participantesFiltrados.map((item, index) => (
+                <View key={item.name + index}>
+                  {renderParticipantCompleto({ item, index })}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+            {/* Línea rosa justo después de la lista */}
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderColor: '#d46bcf',
+                width: '100%',
+              }}
+            />
+
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(false);
+                setSearchText('');   // Aquí limpias el buscador
+              }}
+              style={[
+                styles.closeButton,
+                {
+                  borderWidth: 1,
+                  borderColor: '#d46bcf', // contorno rosa
+                  backgroundColor: 'transparent', // sin fondo
+                },
+              ]}
+            >
+              <Text style={[styles.closeButtonText, { color: '#d46bcf' }]}>Cerrar</Text>
+            </TouchableOpacity>
+
         </View>
       </Modal>
 
-
+      {/* Votaciones */}
       <TouchableOpacity onPress={() => navigation.navigate('Encuestas', { id: event.id, eventTitle: event.title })}>
-        <View style={[styles.section, { backgroundColor: '#fad1f6' }]}>
+        <View style={[styles.section, styles.votacionesSection]}>
           <Text style={styles.sectionTitle}>Votaciones</Text>
           {encuestas.length > 0 ? (
             encuestas.map((encuesta) => (
@@ -248,10 +224,9 @@ export default function EventDetailScreen({ route, navigation }) {
         </View>
       </TouchableOpacity>
 
-      
-
-      <TouchableOpacity onPress={() => navigation.navigate({/* PANTALLA DE GASTOS*/})}>
-        <View style={[styles.section, { backgroundColor: '#b4f8c8' }]}>
+      {/* Gastos */}
+      <TouchableOpacity onPress={() => navigation.navigate(/* PANTALLA DE GASTOS */)}>
+        <View style={[styles.section, styles.gastosSection]}>
           <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
           <Text>Ejemplo 1</Text>
           <Text>Ejemplo 2</Text>
@@ -259,6 +234,11 @@ export default function EventDetailScreen({ route, navigation }) {
       </TouchableOpacity>
     </View>
   );
+
+
+
+  
+  
 }
 
 const styles = StyleSheet.create({
@@ -269,12 +249,20 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 16 },
   detailsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   detailText: { marginLeft: 5, fontSize: 14 },
+  iconMarginLeft: { marginLeft: 10 },
 
   section: {
     padding: 15,
     borderRadius: 12,
     marginTop: 20,
     position: 'relative',
+  },
+
+  participantsSection: {
+    backgroundColor: '#cce5ff',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
   sectionTitle: { fontWeight: 'bold', marginBottom: 5, color: 'black' },
@@ -304,14 +292,14 @@ const styles = StyleSheet.create({
 
   showAllButton: {
     flexDirection: 'row',
-    justifyContent: 'space-between',  // separa texto e icono
+    justifyContent: 'space-between',  
     alignItems: 'center',
     borderColor: '#7abaff',
     borderWidth: 1.2,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    width: '100%', // o un ancho fijo si prefieres
+    width: '100%',
   },
 
   showAllButtonText: {
@@ -326,5 +314,112 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  modalContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 60,
+    textAlign: 'center',
+    color: '#333',
+  },
+
+  modalSubtitle: {
+    fontSize: 16,
+    marginTop: 5,
+    textAlign: 'center',
+    color: '#333',
+    marginBottom: 20,
+  },
+
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#f9f9f9',
+    marginBottom: 20,
+    height: 40,
+  },
+
+  searchInput: {
+    flex: 1,
+    height: '100%',
+  },
+
+  listContainer: {
+    borderWidth: 2,
+    borderColor: '#d46bcf',
+    borderRadius: 12,
+    backgroundColor: 'rgba(212, 107, 207, 0.1)',
+    padding: 10,
+  },
+
+  closeButton: {
+    marginTop: 20,
+    alignSelf: 'center',
+    backgroundColor: '#e0e0e0',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+
+  closeButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+
+  votacionesSection: {
+    backgroundColor: '#fad1f6',
+  },
+
+  gastosSection: {
+    backgroundColor: '#b4f8c8',
+  },
+
+  separatorTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: '#eee',
+    color: '#555',
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 15,
+    marginBottom: 8,
+    color: '#d46bcf',
+  },
+
+  participantRowCompleto: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    justifyContent: 'space-between',
+  },
+
+  participantImageCompleto: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 15,
+  },
+
+  participantNameCompleto: {
+    fontSize: 16,
+    color: '#333',
+  },
 
 });
