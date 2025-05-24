@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "plan-b",
-    "slug": "plan-b",
+    "name": "PlanB",
+    "slug": "PlanB",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
