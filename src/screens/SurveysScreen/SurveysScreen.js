@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Animated } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { getEncuestas } from '../../data/encuestasStorage';
 
 
 import {
@@ -16,19 +17,39 @@ import { Ionicons } from '@expo/vector-icons';
 export default function ViewSurveysScreen({ route }) {
   const navigation = useNavigation();
   
+  const { id: eventIdParam, eventTitle = 'Título de la quedada' } = route.params || {};
+  const eventId = eventIdParam || 'demo'; // 🔧 por defecto 'demo'
 
-
-  
+  const [surveyMap, setSurveyMap] = useState({});
 
   useEffect(() => {
-    if (route.params?.nuevaEncuesta) {
-      const nuevas = [...surveys, route.params.nuevaEncuesta];
-      setSurveyMap((prev) => ({
-        ...prev,
-        [eventId]: nuevas,
+  const cargarEncuestas = async () => {
+    try {
+      const encuestas = await getEncuestas();
+      // Filtrar solo las del evento actual
+      const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
+
+      const transformadas = filtradas.map(e => ({
+        id: e.id,
+        question: e.titulo,
+        description: e.descripcion,
+        options: e.opciones.map((opt, idx) => ({
+          text: opt,
+          votes: e.votos?.[idx] ?? 0,
+          voted: false,
+        }))
       }));
+
+      setSurveyMap({
+        [eventId]: transformadas,
+      });
+    } catch (error) {
+      console.error("Error cargando encuestas:", error);
     }
-  }, [route.params?.nuevaEncuesta]);
+  };
+
+  cargarEncuestas();
+}, [route.params?.nuevaEncuesta, eventId]);
 
   const surveys = surveyMap[eventId] || [];
 

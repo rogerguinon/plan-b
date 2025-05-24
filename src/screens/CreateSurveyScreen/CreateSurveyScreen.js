@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
+import { useRoute } from '@react-navigation/native';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, KeyboardAvoidingView, Platform, Alert
 } from 'react-native';
-import { Alert } from 'react-native';
+import { addEncuesta } from '../../data/encuestasStorage';
 
-export default function CreateSurveyScreen({ route, navigation }) {
+export default function CreateSurveyScreen({ navigation }) {
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
   const [options, setOptions] = useState(['', '']);
 
   const handleAddOption = () => {
-    navigation.navigate('Crear');
+    setOptions([...options, '']);
   };
 
   const handleOptionChange = (text, index) => {
@@ -25,9 +28,14 @@ export default function CreateSurveyScreen({ route, navigation }) {
     }
   };
 
-  const handleSubmit = () => {
+  const route = useRoute();
+  const onAddSurvey = route.params?.onAddSurvey;
+  const eventId = route.params?.eventId || 'demo';
+
+
+  const handleSubmit = async () => {
     const trimmedTitle = title.trim();
-    const validOptions = options.filter(o => o.trim() !== '');
+    const validOptions = options.map(o => o.trim()).filter(o => o !== '');
 
     if (!trimmedTitle) {
       Alert.alert('Error', 'Por favor, añade un título para la encuesta.');
@@ -39,22 +47,30 @@ export default function CreateSurveyScreen({ route, navigation }) {
       return;
     }
 
-    const nuevaEncuesta = {
-      id: Date.now().toString(),
-      question: trimmedTitle,
-      options: validOptions.map(optionText => ({text: optionText.trim(), votes: 0,})),
-    };
+    try {
+      await addEncuesta({
+        titulo: trimmedTitle,
+        descripcion: comment.trim(),
+        opciones: validOptions,
+        eventId,
+      });
 
-    const onAddSurvey = route.params?.onAddSurvey;
-    if (onAddSurvey) {
-      console.log('Enviando encuesta al padre:', nuevaEncuesta);
-      onAddSurvey(nuevaEncuesta);
+      if (onAddSurvey){
+        onAddSurvey({
+          id: Date.now().toString(),
+          question: trimmedTitle,
+          description: comment.trim(),
+          options: validOptions.map(opt => ({ text: opt, votes: 0, voted: false})),
+        });
+      }
+
+      navigation.goBack();
+    } catch (e) {
+      Alert.alert('Error', 'No se pudo guardar la encuesta.');
     }
-
-    navigation.goBack();
   };
 
-  return (
+ return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flex: 1 }}
@@ -91,6 +107,11 @@ export default function CreateSurveyScreen({ route, navigation }) {
                   onChangeText={(text) => handleOptionChange(text, index)}
                   placeholderTextColor="#999"
                 />
+                {options.length > 2 && (
+                  <TouchableOpacity onPress={() => handleRemoveOption(index)}>
+                    <Text style={{ color: 'red', marginLeft: 10 }}>Eliminar</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ))}
             <TouchableOpacity onPress={handleAddOption}>
@@ -99,10 +120,7 @@ export default function CreateSurveyScreen({ route, navigation }) {
           </View>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => navigation.goBack()}
-            >
+            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
 
@@ -115,6 +133,7 @@ export default function CreateSurveyScreen({ route, navigation }) {
     </KeyboardAvoidingView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -153,11 +172,14 @@ const styles = StyleSheet.create({
   },
   optionRow: {
     marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   optionInput: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
+    flex: 1,
   },
   addOption: {
     color: '#D48ABD',
