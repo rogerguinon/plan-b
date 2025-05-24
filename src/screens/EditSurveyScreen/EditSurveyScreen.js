@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { updateEncuesta, deleteEncuesta } from '../../data/encuestasStorage';
+
+
 import {
   View,
   Text,
@@ -12,21 +15,17 @@ import {
 } from 'react-native';
 
 export default function EditSurveyScreen({ route, navigation }) {
-  const { survey } = route.params; // Recibe encuesta desde la navegación
+  const { survey } = route.params; // Recibe encuesta desde navegación
 
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
   const [options, setOptions] = useState([]);
 
   useEffect(() => {
-    if (route.params?.encuestaActualizada) {
-      setSurveys((prevSurveys) =>
-        prevSurveys.map((s) =>
-          s.id === route.params.encuestaActualizada.id ? route.params.encuestaActualizada : s
-        )
-      );
-    }
-  }, [route.params?.encuestaActualizada]);
+    setTitle(survey.question || '');
+    setComment(survey.description || '');
+    setOptions(survey.options.map(opt => opt.text));
+  }, [survey]);
 
   const handleAddOption = () => {
     setOptions([...options, '']);
@@ -45,14 +44,32 @@ export default function EditSurveyScreen({ route, navigation }) {
     }
   };
 
-  const handleSubmit = () => {
-    // Aquí se actualizaría la encuesta en el backend o en el estado global
-    console.log('Encuesta actualizada:', {
-      title,
-      comment,
-      options: options.filter((o) => o.trim() !== ''),
-    });
-    navigation.goBack();
+  const handleSubmit = async () => {
+    const trimmedTitle = title.trim();
+    const validOptions = options.map(o => o.trim()).filter(o => o !== '');
+
+    if (!trimmedTitle) {
+      Alert.alert('Error', 'Añade un título válido');
+      return;
+    }
+
+    if (validOptions.length < 2) {
+      Alert.alert('Error', 'Añade al menos dos opciones válidas');
+      return;
+    }
+
+    try {
+      await updateEncuesta(survey.id, {
+        titulo: trimmedTitle,
+        descripcion: comment.trim(),
+        opciones: validOptions,
+        votos: new Array(validOptions.length).fill(0), // se resetean los votos
+      });
+
+      navigation.goBack();
+    } catch (e) {
+      Alert.alert('Error', 'No se pudo guardar la encuesta editada');
+    }
   };
 
   const handleDelete = () => {
@@ -64,8 +81,8 @@ export default function EditSurveyScreen({ route, navigation }) {
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: () => {
-            console.log('Encuesta eliminada:', survey.id);
+          onPress: async () => {
+            await deleteEncuesta(survey.id);
             navigation.goBack();
           },
         },
@@ -110,7 +127,7 @@ export default function EditSurveyScreen({ route, navigation }) {
                   onChangeText={(text) => handleOptionChange(text, index)}
                   placeholderTextColor="#999"
                 />
-                {index >= 2 && (
+                {options.length > 2 && (
                   <TouchableOpacity onPress={() => handleRemoveOption(index)}>
                     <Text style={styles.removeButton}>–</Text>
                   </TouchableOpacity>
@@ -135,7 +152,7 @@ export default function EditSurveyScreen({ route, navigation }) {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.acceptButton} onPress={handleSubmit}>
-              <Text style={styles.acceptText}>Aceptar</Text>
+              <Text style={styles.acceptText}>Guardar</Text>
             </TouchableOpacity>
           </View>
         </View>

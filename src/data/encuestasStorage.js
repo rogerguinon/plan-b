@@ -35,7 +35,7 @@ export const addEncuesta = async ({ titulo, descripcion, opciones, eventId }) =>
 export const updateEncuesta = async (id, actualizada) => {
   const todas = await getData(KEY);
   const nuevas = todas.map(e =>
-    e.id === id ? { ...e, ...actualizada } : e
+    e.id.toString() === id.toString() ? { ...e, ...actualizada } : e
   );
   await storeData(KEY, nuevas);
 };
