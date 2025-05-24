@@ -8,9 +8,10 @@ export default function CreateEventScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
+
 
       <Text style={styles.title}>Nueva quedada</Text>
 

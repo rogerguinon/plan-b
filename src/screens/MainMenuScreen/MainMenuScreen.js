@@ -61,7 +61,7 @@ export default function MainMenuScreen({ navigation }) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>PlanB</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEventScreen')}>
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
           <MaterialIcons name="add-box" size={30} color="#d46bcf" />
         </TouchableOpacity>
       </View>
