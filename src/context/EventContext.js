@@ -150,7 +150,7 @@ import { getData, storeData } from '../utils/storage'; // asegúrate de tener es
 const KEY_EVENTOS = "EVENTOS"; // clave para AsyncStorage
 
 export const EventProvider = ({ children }) => {
-  const [eventos, setEventos] = useState([]);
+  const [eventos, setEventos] = useState(Events);
   const [surveyMap, setSurveyMap] = useState(SurveyMap);
   const [participantesPorEvento, setParticipantesPorEvento] = useState({});
 
@@ -158,7 +158,7 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const cargarEventos = async () => {
       const almacenados = await getData(KEY_EVENTOS);
-      if (almacenados && almacenados.length > 0) {
+      if (Array.isArray(almacenados) && almacenados.length > 0) {
         setEventos(almacenados);
         // cargar participantes por evento desde los almacenados
         const map = {};

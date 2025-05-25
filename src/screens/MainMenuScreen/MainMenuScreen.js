@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
@@ -11,6 +11,16 @@ const tabs = ['Quedadas actuales', 'Grupos'];
 export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
   const { eventos, surveyMap} = useEventos(); 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setRefreshKey(prev => prev + 1);
+    });
+
+    return unsubscribe; // limpia el listener al desmontar
+  }, [navigation]);
+
   const defaulProfile = 'https://static.vecteezy.com/system/resources/previews/026/622/156/non_2x/crowd-people-silhouette-icon-illustration-social-icon-flat-style-design-user-group-network-enterprise-team-group-community-member-icon-business-team-work-activity-user-icon-free-vector.jpg';
 
 
@@ -77,8 +87,10 @@ export default function MainMenuScreen({ navigation }) {
           data={eventos}
           keyExtractor={(item) => item.id}
           renderItem={renderEvent}
+          extraData={refreshKey} // fuerza re-render al cambiar refreshKey
           contentContainerStyle={{ paddingBottom: 80 }}
         />
+
       ) : (
         <View style={styles.emptyGroups}>
           <Text style={{ color: '#999' }}>Aquí irían los grupos...</Text>
