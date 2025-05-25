@@ -1,12 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { getData, storeData } from '../utils/storage'; // asegúrate de tener esto
 
-// Creamos el contexto
 const EventContext = createContext();
+const KEY_EVENTOS = "EVENTOS"; // clave para AsyncStorage
 
-// Hook para acceder fácilmente
-export const useEventos = () => useContext(EventContext);
-
-// QUEDADAS
+// Datos mock iniciales
 const Events = [
   {
     id: '1',
@@ -35,7 +33,7 @@ const Events = [
       { name: 'Pau', asistencia: 'si' },
       { name: 'Núria', image: 'https://randomuser.me/api/portraits/women/44.jpg', asistencia: '-' },
       { name: 'Daniel', image: 'https://randomuser.me/api/portraits/men/55.jpg', asistencia: 'si' },
-      { name: 'Cristina', image: 'https://randomuser.me/api/portraits/women/66.jpg',asistencia: '-' },
+      { name: 'Cristina', image: 'https://randomuser.me/api/portraits/women/66.jpg', asistencia: '-' },
       { name: 'Alex', image: 'https://randomuser.me/api/portraits/men/77.jpg', asistencia: 'si' },
       { name: 'Carla', image: 'https://randomuser.me/api/portraits/women/88.jpg', asistencia: 'no' },
     ],
@@ -61,8 +59,7 @@ const Events = [
   },
 ];
 
-// ENCUESTAS (renombramos para evitar conflicto con el estado)
-export const SurveyMap = {
+const SurveyMap = {
   '1': [
     {
       id: '1',
@@ -144,47 +141,50 @@ export const SurveyMap = {
   ]
 };
 
-
-// Componente proveedor del contexto
-import { getData, storeData } from '../utils/storage'; // asegúrate de tener esto
-const KEY_EVENTOS = "EVENTOS"; // clave para AsyncStorage
-
 export const EventProvider = ({ children }) => {
-  const [eventos, setEventos] = useState(Events);
+  const [eventos, setEventos] = useState([]);
   const [surveyMap, setSurveyMap] = useState(SurveyMap);
   const [participantesPorEvento, setParticipantesPorEvento] = useState({});
 
-  // Cargar eventos desde almacenamiento al inicio
   useEffect(() => {
     const cargarEventos = async () => {
       const almacenados = await getData(KEY_EVENTOS);
       if (Array.isArray(almacenados) && almacenados.length > 0) {
         setEventos(almacenados);
-        // cargar participantes por evento desde los almacenados
         const map = {};
         almacenados.forEach(ev => {
           map[ev.id] = ev.participants || [];
         });
         setParticipantesPorEvento(map);
       } else {
-        // si no hay nada almacenado, usar los mock-ups
         setEventos(Events);
         const map = {};
         Events.forEach(ev => {
           map[ev.id] = ev.participants || [];
         });
         setParticipantesPorEvento(map);
-        await storeData(KEY_EVENTOS, Events); // guardar los mock-up como datos iniciales
+        await storeData(KEY_EVENTOS, Events);
       }
     };
     cargarEventos();
   }, []);
 
+  const refreshEventos = async () => {
+    const almacenados = await getData(KEY_EVENTOS);
+    if (Array.isArray(almacenados)) {
+      setEventos(almacenados);
+      const map = {};
+      almacenados.forEach(ev => {
+        map[ev.id] = ev.participants || [];
+      });
+      setParticipantesPorEvento(map);
+    }
+  };
 
   const agregarEvento = async (nuevoEvento) => {
     setEventos((prev) => {
       const actualizados = [...prev, nuevoEvento];
-      storeData(KEY_EVENTOS, actualizados); // guardar en storage
+      storeData(KEY_EVENTOS, actualizados);
       return actualizados;
     });
 
@@ -195,7 +195,6 @@ export const EventProvider = ({ children }) => {
       }));
     }
   };
-
 
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({
@@ -219,9 +218,12 @@ export const EventProvider = ({ children }) => {
       participantesPorEvento,
       agregarParticipante,
       surveyMap,
-      agregarEncuesta
+      agregarEncuesta,
+      refreshEventos
     }}>
       {children}
     </EventContext.Provider>
   );
 };
+
+export const useEventos = () => useContext(EventContext);
