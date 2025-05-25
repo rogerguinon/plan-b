@@ -14,15 +14,13 @@ export default function EventDetailScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   // CAMBIAR CUANDO EL USUARIO ESTE DEFINIDO
-  const usuario = { name: 'Arnau', image: 'https://randomuser.me/portraits/men/36.jpg', asistencia: 'si'};
+  const usuario = { name: 'Arnau', image: 'https://randomuser.me/portraits/men/36.jpg', asistencia: '-'};
 
   const participantesRaw = participantesPorEvento[event.id] || event.participants || [];
   const participantes = React.useMemo(() => [
     { ...usuario, name: `Tú` },
     ...participantesRaw.filter(p => p && p.name !== usuario.name),
   ], [participantesRaw, usuario.name]);
-
-
 
   const participantesAsistencia = useMemo(() => {
     const prioridad = { 'si': 0, 'no': 1, '-': 2 };
@@ -40,6 +38,23 @@ export default function EventDetailScreen({ route, navigation }) {
     setFilteredParticipants(filtrados);
   }, [searchText, participantesAsistencia]);
   
+  const [asistencia, setAsistencia] = useState(usuario.asistencia || '-');
+
+  const marcarSi = () => {
+    usuario.asistencia = 'si';
+    setAsistencia('si');
+  };
+
+  const marcarNo = () => {
+    usuario.asistencia = 'no';
+    setAsistencia('no');
+  };
+
+  const editarAsistencia = () => {
+    usuario.asistencia = '-';
+    setAsistencia('-');
+  };
+
 
   const secciones = {
     si: 'Confirmados',
@@ -233,6 +248,42 @@ export default function EventDetailScreen({ route, navigation }) {
           <Text>Ejemplo 2</Text>
         </View>
       </TouchableOpacity>
+
+      {/*Asistencia*/}
+      <View style={[styles.asistenciaContainer, asistencia === 'si' ? styles.si : asistencia === 'no' ? styles.no : null]}>
+        {asistencia === '-' ? (
+          <>
+            <Text style={styles.pregunta}>¿Vas a asistir a la quedada?</Text>
+            <View style={styles.row}>
+              <TouchableOpacity style={styles.btnSi} onPress={marcarSi}>
+                <Text style={styles.btnTexto}>Sí</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btnNo} onPress={marcarNo}>
+                <Text style={styles.btnTexto}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <View style={styles.resultado}>
+            <View style={styles.resultadoFila}>
+              <Ionicons
+                name={asistencia === 'si' ? 'checkmark-circle' : 'close-circle'}
+                size={20}
+                color={asistencia === 'si' ? '#228B22' : '#cc0000'}
+                style={{ marginRight: 6 }}
+              />
+              <Text style={styles.resultadoTexto}>
+                {asistencia === 'si' ? 'Asistencia confirmada' : 'Asistencia denegada'}
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.editBtn} onPress={editarAsistencia}>
+              <Ionicons name="pencil-outline" size={16} color="#333" style={{ marginRight: 6 }} />
+              <Text style={styles.editBtnText}>Editar</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
     </View>
   );  
 }
@@ -415,6 +466,81 @@ const styles = StyleSheet.create({
 
   participantNameCompleto: {
     fontSize: 16,
+    color: '#333',
+  },
+
+  asistenciaContainer: {
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+    backgroundColor: '#f8f8f8',
+    alignItems: 'center',
+  },
+  pregunta: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 12,
+    textAlign: 'center',
+    color: '#333',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+  },
+  btnSi: {
+    backgroundColor: '#d1f2d1',
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    borderRadius: 20,
+  },
+  btnNo: {
+    backgroundColor: '#f7caca',
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    borderRadius: 20,
+  },
+  btnTexto: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  resultado: {
+    alignItems: 'center',
+  },
+  resultadoFila: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  resultadoTexto: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#333',
+  },
+  si: {
+    backgroundColor: '#d1f2d1',
+  },
+  no: {
+    backgroundColor: '#f7caca',
+  },
+  editBtn: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#e6e6e6',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  editBtnText: {
+    fontSize: 14,
+    fontWeight: '500',
     color: '#333',
   },
 
