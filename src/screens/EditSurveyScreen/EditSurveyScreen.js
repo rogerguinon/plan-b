@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 export default function EditSurveyScreen({ route, navigation }) {
-  const { survey } = route.params; // Recibe encuesta desde navegación
+  const { survey, onGoBack, onGoDelete } = route.params; // Recibe encuesta desde navegación
 
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
@@ -59,16 +59,38 @@ export default function EditSurveyScreen({ route, navigation }) {
     }
 
     try {
+
+      const oldOptions = survey.options;
+
+      const updatedOptions = validOptions.map((text) => {
+        const existing = oldOptions.find((opt) => opt.text === text);
+        return {
+          text,
+          votes: existing ? existing.votes : 0,
+          voted: existing?.voted || false, // puedes ajustar esto si quieres conservar también si ya votó
+        };
+      });
+
       await updateEncuesta(survey.id, {
         titulo: trimmedTitle,
         descripcion: comment.trim(),
         opciones: validOptions,
-        votos: new Array(validOptions.length).fill(0), // se resetean los votos
+        votos: updatedOptions.map(opt => opt.votes),
+        votersCount: survey.votersCount,
+        hasVoted: survey.hasVoted,
       });
 
+      if (onGoBack) {
+        onGoBack({
+          id: survey.id,
+          question: trimmedTitle,
+          description: comment.trim(),
+          options: updatedOptions,
+        });
+      }
       navigation.goBack();
     } catch (e) {
-      Alert.alert('Error', 'No se pudo guardar la encuesta editada');
+      Alert.alert('Error', 'No se han podido guardar los cambios.');
     }
   };
 
@@ -82,13 +104,21 @@ export default function EditSurveyScreen({ route, navigation }) {
           text: 'Eliminar',
           style: 'destructive',
           onPress: async () => {
-            await deleteEncuesta(survey.id);
-            navigation.goBack();
+            try {
+              await deleteEncuesta(survey.id);
+              if (onGoDelete) {
+                onGoDelete(survey.id);
+              }
+              navigation.goBack();
+            } catch (e) {
+              Alert.alert('Error', 'No se pudo eliminar la encuesta');
+            }
           },
         },
       ]
     );
   };
+
 
   return (
     <KeyboardAvoidingView

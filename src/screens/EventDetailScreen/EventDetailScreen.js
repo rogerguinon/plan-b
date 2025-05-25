@@ -70,7 +70,8 @@ export default function EventDetailScreen({ route, navigation }) {
     const asistenciaSiguiente = participantesFiltrados[index + 1]?.asistencia;
     const showTitle = index === 0 || asistenciaActual !== participantesFiltrados[index - 1]?.asistencia;
     const showSeparator = asistenciaActual === asistenciaSiguiente;
-
+    const sinImagen = 'https://avatars.githubusercontent.com/u/2263278?v=4'
+    
     return (
       <View>
         {showTitle && (
@@ -82,7 +83,7 @@ export default function EventDetailScreen({ route, navigation }) {
         <View style={styles.participantRowCompleto}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
-              source={{ uri: item.image }}
+              source={{ uri: (item.image || sinImagen)}}
               style={styles.participantImageCompleto}
             />
             <Text style={styles.participantNameCompleto}>{item.name}</Text>
@@ -233,12 +234,7 @@ export default function EventDetailScreen({ route, navigation }) {
         </View>
       </TouchableOpacity>
     </View>
-  );
-
-
-
-  
-  
+  );  
 }
 
 const styles = StyleSheet.create({

@@ -31,8 +31,8 @@ const Events = [
     location: 'Estadi Olímpic Lluís Companys',
     image: 'https://legendswillneverdie.com/wp-content/uploads/2025/01/photo-output-3.jpg?w=1024',
     participants: [
-      { name: 'Eva', image: 'https://randomuser.me/api/portraits/women/11.jpg', asistencia: 'no' },
-      { name: 'Pau', image: 'https://randomuser.me/api/portraits/men/33.jpg', asistencia: 'si' },
+      { name: 'Eva', asistencia: 'no' },
+      { name: 'Pau', asistencia: 'si' },
       { name: 'Núria', image: 'https://randomuser.me/api/portraits/women/44.jpg', asistencia: '-' },
       { name: 'Daniel', image: 'https://randomuser.me/api/portraits/men/55.jpg', asistencia: 'si' },
       { name: 'Cristina', image: 'https://randomuser.me/api/portraits/women/66.jpg',asistencia: '-' },
@@ -62,7 +62,7 @@ const Events = [
 ];
 
 // ENCUESTAS (renombramos para evitar conflicto con el estado)
-const SurveyMap = {
+export const SurveyMap = {
   '1': [
     {
       id: '1',
@@ -71,7 +71,8 @@ const SurveyMap = {
         { text: '17:00', votes: 2, voted: false },
         { text: '17:30', votes: 4, voted: false },
         { text: '18:00', votes: 1, voted: false },
-      ]
+      ],
+      votersCount: 5,
     },
     {
       id: '2',
@@ -80,7 +81,8 @@ const SurveyMap = {
         { text: 'Puerta principal', votes: 3, voted: false },
         { text: 'Metro Collblanc', votes: 2, voted: false },
         { text: 'Bar de la esquina', votes: 2, voted: false },
-      ]
+      ],
+      votersCount: 4,
     }
   ],
   '2': [
@@ -90,7 +92,8 @@ const SurveyMap = {
       options: [
         { text: '20/02/2026', votes: 3, voted: false },
         { text: '21/02/2026', votes: 4, voted: false },
-      ]
+      ],
+      votersCount: 5,
     },
     {
       id: '2',
@@ -100,7 +103,8 @@ const SurveyMap = {
         { text: 'Sí, con luces LED', votes: 2, voted: false },
         { text: 'Sí, pero algo sencillo', votes: 3, voted: false },
         { text: 'No hace falta', votes: 4, voted: false },
-      ]
+      ],
+      votersCount: 4,
     },
     {
       id: '3',
@@ -109,7 +113,8 @@ const SurveyMap = {
         { text: 'Plaça Espanya', votes: 3, voted: false },
         { text: 'En la cola directamente', votes: 5, voted: false },
         { text: 'Parc de Montjuïc', votes: 2, voted: false },
-      ]
+      ],
+      votersCount: 7,
     }
   ],
   '3': [
@@ -121,7 +126,8 @@ const SurveyMap = {
         { text: 'Pop', votes: 3, voted: false },
         { text: 'Electrónica', votes: 2, voted: false },
         { text: 'De todo un poco', votes: 5, voted: false },
-      ]
+      ],
+      votersCount: 8,
     },
     {
       id: '2',
@@ -132,32 +138,56 @@ const SurveyMap = {
         { text: 'Refrescos', votes: 5, voted: false },
         { text: 'Tarta casera', votes: 2, voted: false },
         { text: 'Nada, solo asistiré 😅', votes: 1, voted: false },
-      ]
+      ],
+      votersCount: 10,
     }
   ]
 };
 
 
 // Componente proveedor del contexto
+import { getData, storeData } from '../utils/storage'; // asegúrate de tener esto
+const KEY_EVENTOS = "EVENTOS"; // clave para AsyncStorage
+
 export const EventProvider = ({ children }) => {
-  // Estado inicial de eventos con los Events definidos
-  const [eventos, setEventos] = useState(Events);
-
-  // Estado inicial de encuestas con initialSurveyMap
+  const [eventos, setEventos] = useState([]);
   const [surveyMap, setSurveyMap] = useState(SurveyMap);
+  const [participantesPorEvento, setParticipantesPorEvento] = useState({});
 
-  // Estado participantesPorEvento: lo generamos a partir de los participantes dentro de cada evento
-  const [participantesPorEvento, setParticipantesPorEvento] = useState(() => {
-    const map = {};
-    Events.forEach(evento => {
-      map[evento.id] = evento.participants || [];
+  // Cargar eventos desde almacenamiento al inicio
+  useEffect(() => {
+    const cargarEventos = async () => {
+      const almacenados = await getData(KEY_EVENTOS);
+      if (almacenados && almacenados.length > 0) {
+        setEventos(almacenados);
+        // cargar participantes por evento desde los almacenados
+        const map = {};
+        almacenados.forEach(ev => {
+          map[ev.id] = ev.participants || [];
+        });
+        setParticipantesPorEvento(map);
+      } else {
+        // si no hay nada almacenado, usar los mock-ups
+        setEventos(Events);
+        const map = {};
+        Events.forEach(ev => {
+          map[ev.id] = ev.participants || [];
+        });
+        setParticipantesPorEvento(map);
+        await storeData(KEY_EVENTOS, Events); // guardar los mock-up como datos iniciales
+      }
+    };
+    cargarEventos();
+  }, []);
+
+
+  const agregarEvento = async (nuevoEvento) => {
+    setEventos((prev) => {
+      const actualizados = [...prev, nuevoEvento];
+      storeData(KEY_EVENTOS, actualizados); // guardar en storage
+      return actualizados;
     });
-    return map;
-  });
 
-  const agregarEvento = (nuevoEvento) => {
-    setEventos((prev) => [...prev, nuevoEvento]);
-    // También actualizamos participantesPorEvento si tiene participantes
     if (nuevoEvento.participants) {
       setParticipantesPorEvento((prev) => ({
         ...prev,
@@ -165,6 +195,7 @@ export const EventProvider = ({ children }) => {
       }));
     }
   };
+
 
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({

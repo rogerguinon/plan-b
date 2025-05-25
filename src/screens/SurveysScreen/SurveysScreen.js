@@ -1,55 +1,83 @@
 import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity,} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Animated } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+import { SurveyMap } from '../../context/EventContext';
 import { getEncuestas } from '../../data/encuestasStorage';
 
-
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function ViewSurveysScreen({ route }) {
   const navigation = useNavigation();
   
-  const { id: eventIdParam, eventTitle = 'Título de la quedada' } = route.params || {};
-  const eventId = eventIdParam || 'demo'; // 🔧 por defecto 'demo'
+  const { id: eventIdParam, eventTitle } = route.params || {};
+  const eventId = eventIdParam || 'demo';
 
   const [surveyMap, setSurveyMap] = useState({});
 
   useEffect(() => {
-  const cargarEncuestas = async () => {
-    try {
-      const encuestas = await getEncuestas();
-      // Filtrar solo las del evento actual
-      const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
+    const cargarEncuestas = async () => {
+      try {
+        const encuestas = await getEncuestas();
+        const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
 
-      const transformadas = filtradas.map(e => ({
-        id: e.id,
-        question: e.titulo,
-        description: e.descripcion,
-        options: e.opciones.map((opt, idx) => ({
-          text: opt,
-          votes: e.votos?.[idx] ?? 0,
-          voted: false,
-        }))
-      }));
+        const transformadas = filtradas.map(e => ({
+          id: e.id,
+          question: e.titulo,
+          description: e.descripcion,
+          options: e.opciones.map((opt, idx) => ({
+            text: opt,
+            votes: e.votos?.[idx] ?? 0,
+            voted: false,
+          })),
+          userHasVoted: false,
+          votersCount: 0,
+        }));
 
-      setSurveyMap({
-        [eventId]: transformadas,
+        const simuladas = SurveyMap[eventId] || [];
+
+        setSurveyMap(prevMap => ({
+          ...prevMap,
+          [eventId]: [
+            ...simuladas,      // 👈 primero simuladas
+            ...transformadas,  // 👈 luego reales
+          ],
+        }));
+
+      } catch (error) {
+        console.error("Error cargando encuestas:", error);
+      }
+    };
+
+    cargarEncuestas();
+
+    if (route.params?.encuestaEditada) {
+      const editada = route.params.encuestaEditada;
+      setSurveyMap(prevMap => {
+        const encuestasPrevias = prevMap[eventId] || [];
+        const actualizadas = encuestasPrevias.map(e => 
+          e.id === editada.id ? editada : e
+        );
+        return { ...prevMap, [eventId]: actualizadas };
       });
-    } catch (error) {
-      console.error("Error cargando encuestas:", error);
-    }
-  };
 
-  cargarEncuestas();
-}, [route.params?.nuevaEncuesta, eventId]);
+      // Limpias el param para que no se repita la actualización
+      navigation.setParams({ encuestaEditada: undefined });
+    }
+
+    if (route.params?.encuestaEliminada) {
+      const idEliminada = route.params.encuestaEliminada;
+      setSurveyMap(prevMap => {
+        const encuestasPrevias = prevMap[eventId] || [];
+        const filtradas = encuestasPrevias.filter(e => e.id !== idEliminada);
+        return { ...prevMap, [eventId]: filtradas };
+      });
+
+      navigation.setParams({ encuestaEliminada: undefined });
+    }
+  }, [route.params?.nuevaEncuesta, eventId]);
 
   const surveys = surveyMap[eventId] || [];
 
@@ -66,8 +94,28 @@ export default function ViewSurveysScreen({ route }) {
   };
 
   const handleEditSurvey = (survey) => {
-    navigation.navigate('Editar', { survey, eventId });
+    navigation.navigate('Editar', {
+      survey,
+      eventId,
+      onGoBack: (editedSurvey) => {
+        setSurveyMap((prevMap) => {
+          const prevSurveys = prevMap[eventId] || [];
+          const updated = prevSurveys.map((s) =>
+            s.id === editedSurvey.id ? editedSurvey : s
+          );
+          return { ...prevMap, [eventId]: updated };
+        });
+      },
+      onGoDelete: (deletedId) => {
+        setSurveyMap((prevMap) => {
+          const prevSurveys = prevMap[eventId] || [];
+          const filtered = prevSurveys.filter((s) => s.id !== deletedId);
+          return { ...prevMap, [eventId]: filtered };
+        });
+      },
+    });
   };
+
 
 
   const [userVotes, setUserVotes] = useState({});
@@ -206,7 +254,7 @@ export default function ViewSurveysScreen({ route }) {
               </TouchableOpacity>
 
               <Text style={styles.totalVotesText}>
-                {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos ({survey.participants?.length ?? survey.votersCount} votantes)
+                {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos ({survey.participants?.length ?? survey.votersCount ?? 0} votantes)
               </Text>
             </View>
 

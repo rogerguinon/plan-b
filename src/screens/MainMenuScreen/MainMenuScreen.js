@@ -21,8 +21,8 @@ export default function MainMenuScreen({ navigation }) {
         navigation.navigate('Detalles', { event: item, encuestas });
       }}
     >
-      <View style={[styles.card, { paddingVertical: 25 }]}> {/* Más alto con padding vertical */}
-        <Image source={{ uri: item.image || defaulProfile}} style={styles.eventImage} />
+      <View style={[styles.card, { paddingVertical: 25 }]}>
+        <Image source={{ uri: (item.image || defaulProfile)}} style={styles.eventImage} />
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={styles.eventTitle}>{item.title}</Text>
           <View style={styles.metaInfo}>
