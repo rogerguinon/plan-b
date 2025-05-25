@@ -3,9 +3,8 @@ import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Alert
 } from 'react-native';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
-
 
 export default function CreateEventScreen({ navigation }) {
   const [title, setTitle] = useState('');
@@ -13,6 +12,7 @@ export default function CreateEventScreen({ navigation }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [location, setLocation] = useState('');
+  const [image, setImage] = useState(''); // Nuevo estado para el link de imagen
 
   const { agregarEvento } = useEventos();
 
@@ -23,18 +23,22 @@ export default function CreateEventScreen({ navigation }) {
     }
 
     const nuevoEvento = {
+      id: Date.now().toString(), // o usa uuid si prefieres
       title,
       description,
       date,
       time,
       location,
-      participants: '',
+      participants: [],
     };
 
+    if (image.trim()) {
+      nuevoEvento.image = image.trim();
+    }
 
     try {
       await agregarEvento(nuevoEvento);
-      navigation.navigate('Main'); // o el nombre que uses para la pantalla principal
+      navigation.navigate('Main');
     } catch (error) {
       console.error('Error al guardar el evento:', error);
       Alert.alert('Error', 'No se pudo guardar el evento.');
@@ -68,26 +72,29 @@ export default function CreateEventScreen({ navigation }) {
           onChangeText={setDescription}
           multiline
         />
-
         <TextInput
           style={styles.input}
           placeholder="Fecha (ej: 2025-05-24)"
           value={date}
           onChangeText={setDate}
         />
-
         <TextInput
           style={styles.input}
           placeholder="Hora (ej: 19:30)"
           value={time}
           onChangeText={setTime}
         />
-
         <TextInput
           style={styles.input}
           placeholder="Lugar"
           value={location}
           onChangeText={setLocation}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="URL de imagen (opcional)"
+          value={image}
+          onChangeText={setImage}
         />
 
         <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
