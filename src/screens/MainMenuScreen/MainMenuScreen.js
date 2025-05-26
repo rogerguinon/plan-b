@@ -1,57 +1,51 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { useEventos } from '../../context/EventContext';
 
 const tabs = ['Quedadas actuales', 'Grupos'];
 
-const mockEvents = [
-  {
-    id: '1',
-    title: 'Partido Barça vs Espanyol',
-    date: 'May 16, 2025',
-    description: 'Arnau, Martí y Omar',
-    participants: ['A', 'J'],
-  },
-  {
-    id: '2',
-    title: 'Concierto Bad Bunny',
-    date: 'May 23, 2026',
-    description: 'Pillares cena y bebida para la cola',
-    location: 'Passeig Olímpic, 15-17, Sants-Montjuïc, Barcelona',
-    participants: ['A', 'J', 'R'],
-  },
-  {
-    id: '3',
-    title: 'Cumple Martí',
-    date: 'Feb 20, 2026',
-    description: 'Traeros vuestra bebida',
-    location: 'Carrer de Vilamarí, 90, Barcelona',
-    participants: ['A', 'M', 'E'],
-    image: 'https://randomuser.me/api/portraits/men/32.jpg', // ejemplo imagen
-  },
-];
+
+
 
 export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
+  const { eventos, surveyMap} = useEventos(); 
+  const defaulProfile = 'https://static.vecteezy.com/system/resources/previews/026/622/156/non_2x/crowd-people-silhouette-icon-illustration-social-icon-flat-style-design-user-group-network-enterprise-team-group-community-member-icon-business-team-work-activity-user-icon-free-vector.jpg';
+
 
   const renderEvent = ({ item }) => (
-    <View style={styles.card}>
-      {item.image && <Image source={{ uri: item.image }} style={styles.eventImage} />}
-      <View style={{ flex: 1 }}>
-        <Text style={styles.eventTitle}>{item.title}</Text>
-        <Text style={styles.eventDesc}>{item.description}</Text>
-        {item.location && (
-          <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.locationText}>{item.location}</Text>
+    <TouchableOpacity
+      onPress={() => {
+        const encuestas = surveyMap[item.id] || [];
+        navigation.navigate('Detalles', { event: item, encuestas });
+      }}
+    >
+      <View style={[styles.card, { paddingVertical: 25 }]}>
+        <Image source={{ uri: (item.image || defaulProfile)}} style={styles.eventImage} />
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={styles.eventTitle}>{item.title}</Text>
+          <View style={styles.metaInfo}>
+            {item.location && (
+              <View style={styles.infoRow}>
+                <Ionicons name="location-outline" size={16} color="#666" style={styles.icon} />
+                <Text style={styles.infoText}>{item.location}</Text>
+              </View>
+            )}
+            {item.date && (
+              <View style={styles.infoRow}>
+                <Ionicons name="calendar-outline" size={16} color="#666" style={styles.icon} />
+                <Text style={styles.infoText}>{item.date}</Text>
+              </View>
+            )}
           </View>
-        )}
+        </View>
+        <Ionicons name="chevron-forward" size={14} color="#666" style={styles.arrowIcon} />
       </View>
-      <View style={styles.dateBox}>
-        <Text style={styles.dateText}>{item.date}</Text>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
+
+
 
   return (
     <View style={styles.container}>
@@ -73,13 +67,14 @@ export default function MainMenuScreen({ navigation }) {
           >
             <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>{tab}</Text>
           </TouchableOpacity>
+
         ))}
       </View>
 
       {/* Content */}
       {activeTab === 'Quedadas actuales' ? (
         <FlatList
-          data={mockEvents}
+          data={eventos}
           keyExtractor={(item) => item.id}
           renderItem={renderEvent}
           contentContainerStyle={{ paddingBottom: 80 }}
@@ -92,6 +87,7 @@ export default function MainMenuScreen({ navigation }) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 15, paddingTop: 40 },
@@ -118,18 +114,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignItems: 'center',
   },
-  eventImage: { width: 50, height: 50, borderRadius: 8, marginRight: 12 },
-  eventTitle: { fontWeight: 'bold', fontSize: 16, marginBottom: 4 },
-  eventDesc: { color: '#555', marginBottom: 6 },
+  eventImage: { width: 50, height: 50, borderRadius: 5, marginRight: 8 },
+  eventTitle: { fontWeight: 'bold', fontSize: 16 },
+  eventDesc: { color: '#555', marginBottom: 6, fontSize: 14},
   locationRow: { flexDirection: 'row', alignItems: 'center' },
   locationText: { marginLeft: 4, color: '#666', fontSize: 12 },
 
   dateBox: {
     backgroundColor: '#f2c7f2',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 5,
+    paddingVertical: 3,
     borderRadius: 10,
-    marginLeft: 12,
+
   },
   dateText: { fontSize: 11, color: '#8e3d8e' },
 
@@ -138,4 +134,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  metaInfo: {
+    marginTop: 4,
+    gap: 4, // para separar verticalmente ubicación y fecha
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  icon: {
+    marginRight: 6,
+  },
+
+  infoText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  arrowIcon: {
+    marginLeft: 10,
+    marginRight: 2,
+  },
+
 });
