@@ -3,10 +3,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/firebaseConfig'; // ✅ Asegúrate de tener esto
-
+import { FIREBASE_API_KEY } from '../../config/firebaseRest';
 
 const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
@@ -14,32 +11,34 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+  const handleEmailLogin = async () => {
+    try {
+      const res = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+            returnSecureToken: true,
+          }),
+        }
+      );
 
-    console.log('✅ Sesión iniciada:', user);
-
-    // Verifica si el perfil está completo en Firestore
-    const userRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(userRef);
-
-    if (docSnap.exists() && docSnap.data()?.name) {
-      navigation.replace('Main'); // ya tiene perfil
-    } else {
-      navigation.replace('UserInfo'); // redirigir si no tiene
+      const data = await res.json();
+      if (res.ok) {
+        navigation.replace('Main');
+      } else {
+        Alert.alert('Error al iniciar sesión', data.error?.message || 'Error desconocido');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'No se pudo conectar con el servidor.');
     }
-
-  } catch (error) {
-    console.error(error);
-    Alert.alert('Error al iniciar sesión', error.message);
-  }
-};
-
+  };
 
   const handleGoogleLogin = async () => {
-    const clientId = "794332066987-np3r15t5vrogdrq54ne9g5687cc70kh1.apps.googleusercontent.com";
+    const clientId = "794332066987-np3r15t5vrogdrq54ne9g5687cc70kh1.apps.googleusercontent.com"; 
 
     const result = await AuthSession.startAsync({
       authUrl: `https://accounts.google.com/o/oauth2/v2/auth?response_type=token&client_id=${clientId}&redirect_uri=${encodeURIComponent(
@@ -73,7 +72,7 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
         <Text style={styles.buttonText}>Iniciar sesión</Text>
       </TouchableOpacity>
 
