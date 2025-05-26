@@ -5,23 +5,30 @@ import { Animated } from 'react-native';
 
 import { SurveyMap } from '../../context/EventContext';
 import { getEncuestas } from '../../data/encuestasStorage';
-
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function ViewSurveysScreen({ route }) {
   const navigation = useNavigation();
-  
-  const { id: eventIdParam, eventTitle } = route.params || {};
+  const { id: eventIdParam, eventTitle = 'Título de la quedada' } = route.params || {};
   const eventId = eventIdParam || 'demo';
 
   const [surveyMap, setSurveyMap] = useState({});
 
-  useEffect(() => {
-    const cargarEncuestas = async () => {
-      try {
-        const encuestas = await getEncuestas();
-        const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
+  useFocusEffect(
+    React.useCallback(() => {
+      const cargarEncuestas = async () => {
+        try {
+          const encuestas = await getEncuestas();
+          const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
 
         const transformadas = filtradas.map(e => ({
           id: e.id,
@@ -90,7 +97,7 @@ export default function ViewSurveysScreen({ route }) {
           return { ...prevMap, [eventId]: updatedSurveys };
         });
       },
-    }); 
+    });
   };
 
   const handleEditSurvey = (survey) => {
@@ -117,15 +124,11 @@ export default function ViewSurveysScreen({ route }) {
   };
 
 
-
-  const [userVotes, setUserVotes] = useState({});
-
   const handleToggleVote = (surveyId, optionIndex) => {
     setSurveyMap(prevMap => {
       const updatedSurveys = prevMap[eventId].map(survey => {
         if (survey.id !== surveyId) return survey;
 
-        // Opciones actualizadas
         const updatedOptions = survey.options.map((opt, idx) => {
           if (idx !== optionIndex) return opt;
 
@@ -137,30 +140,21 @@ export default function ViewSurveysScreen({ route }) {
           };
         });
 
-        // Comprobar si el usuario tenía votos previos (antes de la actualización)
         const hadVotedBefore = survey.userHasVoted || false;
-
-        // Contar cuántas opciones están votadas ahora
         const userVotesCount = updatedOptions.filter(o => o.voted).length;
-
-        // Usuario vota ahora si hay al menos una opción marcada
         const userHasVoted = userVotesCount > 0;
-
-        // Actualizar votantes únicos según reglas
         let updatedVotersCount = survey.votersCount || 0;
 
         if (!hadVotedBefore && userHasVoted) {
-          // Voto por primera vez
           updatedVotersCount += 1;
         } else if (hadVotedBefore && !userHasVoted) {
-          // Quitó todos sus votos
           updatedVotersCount = Math.max(0, updatedVotersCount - 1);
         }
 
         return {
           ...survey,
           options: updatedOptions,
-          userHasVoted: userHasVoted,
+          userHasVoted,
           votersCount: updatedVotersCount,
         };
       });
@@ -171,8 +165,6 @@ export default function ViewSurveysScreen({ route }) {
       };
     });
   };
-
-
 
   return (
     <View style={styles.container}>
@@ -185,7 +177,6 @@ export default function ViewSurveysScreen({ route }) {
               <Text style={styles.question}>{survey.question}</Text>
             </View>
 
-
             {survey.description && (
               <Text style={styles.description}>{survey.description}</Text>
             )}
@@ -194,7 +185,6 @@ export default function ViewSurveysScreen({ route }) {
               const totalVotes = survey.options.reduce((sum, o) => sum + o.votes, 0);
               const maxVotes = Math.max(...survey.options.map(o => o.votes));
               const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
-
               const isWinningOption = option.votes === maxVotes && maxVotes > 0;
 
               return (
@@ -214,11 +204,7 @@ export default function ViewSurveysScreen({ route }) {
                         {
                           color: option.voted ? '#008000' : '#333',
                           opacity: option.voted ? 1 : 0.7,
-                          transform: [
-                            {
-                              scale: option.voted ? 1.05 : 1,
-                            },
-                          ],
+                          transform: [{ scale: option.voted ? 1.05 : 1 }],
                         },
                       ]}
                     >
@@ -229,8 +215,8 @@ export default function ViewSurveysScreen({ route }) {
                       {isWinningOption && (
                         <MaterialCommunityIcons
                           name="crown"
-                          size={14}  // Tamaño pequeño similar al texto
-                          color="#DAA520" // Color dorado típico de la corona
+                          size={14}
+                          color="#DAA520"
                           style={{ marginRight: 4 }}
                         />
                       )}
@@ -246,7 +232,6 @@ export default function ViewSurveysScreen({ route }) {
               );
             })}
 
-            {/* Aquí la fila con botón Editar a la izquierda y total votos a la derecha */}
             <View style={styles.bottomRow}>
               <TouchableOpacity onPress={() => handleEditSurvey(survey)} style={styles.editButton}>
                 <Ionicons name="pencil-outline" size={18} color="#555f7a" />
@@ -257,8 +242,6 @@ export default function ViewSurveysScreen({ route }) {
                 {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos ({survey.participants?.length ?? survey.votersCount ?? 0} votantes)
               </Text>
             </View>
-
-
           </View>
         ))}
       </ScrollView>
@@ -268,8 +251,8 @@ export default function ViewSurveysScreen({ route }) {
       </TouchableOpacity>
     </View>
   );
-
 }
+
 
 const styles = StyleSheet.create({
   container: {

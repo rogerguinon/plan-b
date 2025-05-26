@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { updateEncuesta, deleteEncuesta } from '../../data/encuestasStorage';
-
-
 import {
   View,
   Text,
@@ -13,6 +10,7 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import { updateEncuesta, deleteEncuesta } from '../../data/encuestasStorage';
 
 export default function EditSurveyScreen({ route, navigation }) {
   const { survey, onGoBack, onGoDelete } = route.params; // Recibe encuesta desde navegación
@@ -95,29 +93,32 @@ export default function EditSurveyScreen({ route, navigation }) {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      'Eliminar encuesta',
-      '¿Estás seguro de que quieres eliminar esta encuesta?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteEncuesta(survey.id);
-              if (onGoDelete) {
-                onGoDelete(survey.id);
-              }
-              navigation.goBack();
-            } catch (e) {
-              Alert.alert('Error', 'No se pudo eliminar la encuesta');
-            }
-          },
+  Alert.alert(
+    'Eliminar encuesta',
+    '¿Estás seguro de que quieres eliminar esta encuesta?',
+    [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: () => {
+          eliminarEncuesta(); // función separada fuera del Alert
         },
-      ]
-    );
+      },
+    ]
+  );
+}; 
+
+  const eliminarEncuesta = async () => {
+    try {
+      await deleteEncuesta(survey.id);
+      navigation.goBack(); // ← importante: volver para recargar
+    } catch (e) {
+      Alert.alert("Error", "No se pudo eliminar la encuesta.");
+    }
   };
+
+
 
 
   return (
