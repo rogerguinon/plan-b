@@ -93,32 +93,37 @@ export default function EditSurveyScreen({ route, navigation }) {
   };
 
   const handleDelete = () => {
-  Alert.alert(
-    'Eliminar encuesta',
-    '¿Estás seguro de que quieres eliminar esta encuesta?',
-    [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => {
-          eliminarEncuesta(); // función separada fuera del Alert
+  if (Platform.OS === 'web') {
+    const confirmado = window.confirm('¿Estás seguro de que quieres eliminar esta encuesta?');
+    if (confirmado) {
+      eliminarEncuesta();
+    }
+  } else {
+    Alert.alert(
+      'Eliminar encuesta',
+      '¿Estás seguro de que quieres eliminar esta encuesta?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: eliminarEncuesta,
         },
-      },
-    ]
-  );
-}; 
+      ]
+    );
+  }
+};
+ 
 
   const eliminarEncuesta = async () => {
-    try {
-      await deleteEncuesta(survey.id);
-      navigation.goBack(); // ← importante: volver para recargar
-    } catch (e) {
-      Alert.alert("Error", "No se pudo eliminar la encuesta.");
-    }
+  try {
+    await deleteEncuesta(survey.id);
+    navigation.setParams({ encuestaEliminada: survey.id }); // ← pasarlo
+    navigation.goBack(); // ← esto sí reactiva useFocusEffect
+  } catch (e) {
+    Alert.alert("Error", "No se pudo eliminar la encuesta.");
+  }
   };
-
-
 
 
   return (

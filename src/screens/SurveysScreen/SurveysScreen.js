@@ -1,132 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity,} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Animated } from 'react-native';
-
-import { SurveyMap } from '../../context/EventContext';
-import { getEncuestas } from '../../data/encuestasStorage';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { getEncuestas } from '../../data/encuestasStorage';
 
 export default function ViewSurveysScreen({ route }) {
   const navigation = useNavigation();
   const { id: eventIdParam, eventTitle = 'Título de la quedada' } = route.params || {};
   const eventId = eventIdParam || 'demo';
 
-  const [surveyMap, setSurveyMap] = useState({});
+  const [surveys, setSurveys] = useState([]);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       const cargarEncuestas = async () => {
         try {
-          const encuestas = await getEncuestas();
-          const filtradas = (encuestas || []).filter(e => e.eventId === eventId);
+          const todas = await getEncuestas();
+          const filtradas = (todas || []).filter(e => e.eventId === eventId);
 
-        const transformadas = filtradas.map(e => ({
-          id: e.id,
-          question: e.titulo,
-          description: e.descripcion,
-          options: e.opciones.map((opt, idx) => ({
-            text: opt,
-            votes: e.votos?.[idx] ?? 0,
-            voted: false,
-          })),
-          userHasVoted: false,
-          votersCount: 0,
-        }));
+          if (route.params?.encuestaEliminada) {
+            setSurveys(prev => prev.filter(e => e.id !== route.params.encuestaEliminada));
+            navigation.setParams({ encuestaEliminada: undefined });
+          }
 
-        const simuladas = SurveyMap[eventId] || [];
+          const transformadas = filtradas.map(e => ({
+            id: e.id,
+            question: e.titulo,
+            description: e.descripcion,
+            options: e.opciones.map((opt, idx) => ({
+              text: opt,
+              votes: e.votos?.[idx] ?? 0,
+              voted: false,
+            })),
+            userHasVoted: false,
+            votersCount: e.votersCount ?? 0,
+          }));
 
-        setSurveyMap(prevMap => ({
-          ...prevMap,
-          [eventId]: [
-            ...simuladas,      // 👈 primero simuladas
-            ...transformadas,  // 👈 luego reales
-          ],
-        }));
+          setSurveys(transformadas);
+        } catch (err) {
+          console.error('Error al cargar encuestas:', err);
+        }
+      };
 
-      } catch (error) {
-        console.error("Error cargando encuestas:", error);
-      }
-    };
-
-    cargarEncuestas();
-
-    if (route.params?.encuestaEditada) {
-      const editada = route.params.encuestaEditada;
-      setSurveyMap(prevMap => {
-        const encuestasPrevias = prevMap[eventId] || [];
-        const actualizadas = encuestasPrevias.map(e => 
-          e.id === editada.id ? editada : e
-        );
-        return { ...prevMap, [eventId]: actualizadas };
-      });
-
-      // Limpias el param para que no se repita la actualización
-      navigation.setParams({ encuestaEditada: undefined });
-    }
-
-    if (route.params?.encuestaEliminada) {
-      const idEliminada = route.params.encuestaEliminada;
-      setSurveyMap(prevMap => {
-        const encuestasPrevias = prevMap[eventId] || [];
-        const filtradas = encuestasPrevias.filter(e => e.id !== idEliminada);
-        return { ...prevMap, [eventId]: filtradas };
-      });
-
-      navigation.setParams({ encuestaEliminada: undefined });
-    }
-  }, [route.params?.nuevaEncuesta, eventId]);
-
-  const surveys = surveyMap[eventId] || [];
+      cargarEncuestas();
+    }, [eventId, route.params?.encuestaEliminada])
+  );
 
   const handleAddSurvey = () => {
-    navigation.navigate('Crear', {
-      eventId,
-      onAddSurvey: (newSurvey) => {
-        setSurveyMap((prevMap) => {
-          const updatedSurveys = [...(prevMap[eventId] || []), newSurvey];
-          return { ...prevMap, [eventId]: updatedSurveys };
-        });
-      },
-    });
+    navigation.navigate('Crear', { eventId });
   };
 
   const handleEditSurvey = (survey) => {
-    navigation.navigate('Editar', {
-      survey,
-      eventId,
-      onGoBack: (editedSurvey) => {
-        setSurveyMap((prevMap) => {
-          const prevSurveys = prevMap[eventId] || [];
-          const updated = prevSurveys.map((s) =>
-            s.id === editedSurvey.id ? editedSurvey : s
-          );
-          return { ...prevMap, [eventId]: updated };
-        });
-      },
-      onGoDelete: (deletedId) => {
-        setSurveyMap((prevMap) => {
-          const prevSurveys = prevMap[eventId] || [];
-          const filtered = prevSurveys.filter((s) => s.id !== deletedId);
-          return { ...prevMap, [eventId]: filtered };
-        });
-      },
-    });
+    navigation.navigate('Editar', { survey, eventId });
   };
 
-
   const handleToggleVote = (surveyId, optionIndex) => {
-    setSurveyMap(prevMap => {
-      const updatedSurveys = prevMap[eventId].map(survey => {
+    setSurveys(prevSurveys =>
+      prevSurveys.map(survey => {
         if (survey.id !== surveyId) return survey;
 
         const updatedOptions = survey.options.map((opt, idx) => {
@@ -157,13 +95,8 @@ export default function ViewSurveysScreen({ route }) {
           userHasVoted,
           votersCount: updatedVotersCount,
         };
-      });
-
-      return {
-        ...prevMap,
-        [eventId]: updatedSurveys,
-      };
-    });
+      })
+    );
   };
 
   return (
@@ -177,9 +110,9 @@ export default function ViewSurveysScreen({ route }) {
               <Text style={styles.question}>{survey.question}</Text>
             </View>
 
-            {survey.description && (
+            {survey.description ? (
               <Text style={styles.description}>{survey.description}</Text>
-            )}
+            ) : null}
 
             {survey.options.map((option, idx) => {
               const totalVotes = survey.options.reduce((sum, o) => sum + o.votes, 0);
@@ -225,6 +158,7 @@ export default function ViewSurveysScreen({ route }) {
                       </Text>
                     </View>
                   </View>
+
                   <View style={styles.progressWrapper}>
                     <View style={[styles.progressBarFill, { width: `${percentage}%` }]} />
                   </View>
@@ -239,7 +173,7 @@ export default function ViewSurveysScreen({ route }) {
               </TouchableOpacity>
 
               <Text style={styles.totalVotesText}>
-                {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos ({survey.participants?.length ?? survey.votersCount ?? 0} votantes)
+                {survey.options.reduce((sum, o) => sum + o.votes, 0)} votos ({survey.votersCount} votantes)
               </Text>
             </View>
           </View>
