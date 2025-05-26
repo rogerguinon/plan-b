@@ -10,7 +10,6 @@ import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
 import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
