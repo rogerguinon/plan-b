@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
-import { FIREBASE_API_KEY } from '../../config/firebaseRest';
+import { auth } from '../../firebase/firebaseConfig';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -10,28 +11,12 @@ export default function RegisterScreen({ navigation }) {
 
   const handleRegister = async () => {
     try {
-      const res = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password,
-            returnSecureToken: true,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        Alert.alert('✅ Cuenta creada', 'Tu cuenta ha sido registrada correctamente.');
-        navigation.replace('Main'); // o navigation.navigate('Login')
-      } else {
-        Alert.alert('Error al registrarse', data.error?.message || 'Error desconocido');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo conectar con el servidor.');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('✅ Cuenta creada:', userCredential.user);
+      navigation.replace('UserInfo'); // o 'Main'
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error al registrarse', error.message);
     }
   };
 
