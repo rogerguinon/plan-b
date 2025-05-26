@@ -38,11 +38,10 @@ export default function EventDetailScreen({ route, navigation }) {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              marginRight: 10,
+              marginLeft: 20,
             }}
           >
-            <Ionicons name="pencil-outline" size={20} color="#d46bcf" style={{ marginRight: 5 }} />
-            <Text style={{ color: '#d46bcf', fontSize: 16 }}>Editar</Text>
+            <Text style={{ color: '#007aff', fontSize: 16 }}>Editar</Text>
           </TouchableOpacity>
       ),
     });
@@ -165,7 +164,12 @@ export default function EventDetailScreen({ route, navigation }) {
           <Text style={styles.sectionTitle}>
             {participantes.length} Participantes
           </Text>
-          <MaterialCommunityIcons name="chevron-right" size={30} color="white" />
+          <MaterialCommunityIcons
+            name="account-group"
+            size={25}
+            color="black"
+            style={{ marginLeft: 10 }}
+          />
         </View>
       </TouchableOpacity>
 
@@ -241,27 +245,49 @@ export default function EventDetailScreen({ route, navigation }) {
 
       {/* Votaciones */}
       <TouchableOpacity onPress={() => navigation.navigate('Encuestas', { id: event.id, eventTitle: event.title })}>
-        <View style={[styles.section, styles.votacionesSection]}>
-          <Text style={styles.sectionTitle}>Votaciones</Text>
-          {encuestas.length > 0 ? (
-            encuestas.map((encuesta) => (
-              <Text key={encuesta.id}>{encuesta.question}</Text>
-            ))
-          ) : (
-            <Text>Todavía no hay encuestas para esta quedada.</Text>
-          )}
-          <MaterialCommunityIcons name="poll" size={30} color="white" style={styles.iconOverlay} />
+        <View style={[styles.section, styles.votacionesSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          
+          <View>
+            <Text style={styles.sectionTitle}>Votaciones</Text>
+            {encuestas.length > 0 ? (
+              encuestas.map((encuesta) => (
+                <Text key={encuesta.id}>{encuesta.question}</Text>
+              ))
+            ) : (
+              <Text>Todavía no hay encuestas para esta quedada.</Text>
+            )}
+          </View>
+
+          <MaterialCommunityIcons
+            name="poll"
+            size={25}
+            color="black"
+            style={{ marginLeft: 10 }}
+          />
+          
         </View>
       </TouchableOpacity>
 
       {/* Gastos */}
       <TouchableOpacity onPress={() => navigation.navigate(/* PANTALLA DE GASTOS */)}>
-        <View style={[styles.section, styles.gastosSection]}>
-          <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
-          <Text>Ejemplo 1</Text>
-          <Text>Ejemplo 2</Text>
+        <View style={[styles.section, styles.gastosSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          
+          <View>
+            <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
+            <Text>Ejemplo 1</Text>
+            <Text>Ejemplo 2</Text>
+          </View>
+
+          <MaterialCommunityIcons
+            name="cash-multiple"
+            size={25}
+            color="black"
+            style={{ marginLeft: 10 }}
+          />
+          
         </View>
       </TouchableOpacity>
+
 
       {/*Asistencia*/}
       <View style={[styles.asistenciaContainer, asistencia === 'si' ? styles.si : asistencia === 'no' ? styles.no : null]}>
@@ -305,7 +331,7 @@ export default function EventDetailScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20, paddingTop: 20 },
   backButton: { position: 'absolute', top: 50, left: 20 },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 25, textAlign: 'center' },
   infoBox: { backgroundColor: '#f0f4ff', padding: 12, borderRadius: 10, marginBottom: 20 },
   subtitle: { fontSize: 16 },
   detailsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
@@ -318,6 +344,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     position: 'relative',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
   },
 
   participantsSection: {
@@ -327,8 +358,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  sectionTitle: { fontWeight: 'bold', marginBottom: 5, color: 'black' },
-  iconOverlay: { position: 'absolute', right: 10, top: 10 },
+  sectionTitle: { fontWeight: 'bold', color: 'black' },
 
   participantRow: {
     flexDirection: 'row',
@@ -513,12 +543,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 22,
     borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
   },
   btnNo: {
     backgroundColor: '#f7caca',
     paddingVertical: 10,
     paddingHorizontal: 22,
     borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
   },
   btnTexto: {
     fontSize: 15,
