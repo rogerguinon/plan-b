@@ -18,7 +18,7 @@ export default function App() {
     // Envuelve toda la navegación con el provider
     <EventProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="CreateEvent"> 
+        <Stack.Navigator initialRouteName="Login"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={MainMenuScreen} options={{ headerShown: false }}/>
