@@ -4,7 +4,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEventos } from '../../context/EventContext';
 
-
 export default function EventDetailScreen({ route, navigation }) {
   const { event } = route.params;
   const { surveyMap, participantesPorEvento } = useEventos();
@@ -62,7 +61,6 @@ export default function EventDetailScreen({ route, navigation }) {
     '-': 'Sin respuesta',
   };
 
-
   const renderParticipantCompleto = ({ item, index }) => {
     let iconName = '';
     let iconColor = '';
@@ -119,7 +117,6 @@ export default function EventDetailScreen({ route, navigation }) {
     );
   };
   
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{event.title}</Text>

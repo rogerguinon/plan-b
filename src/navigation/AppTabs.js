@@ -4,7 +4,6 @@ import MainMenuScreen from '../screens/MainMenuScreen/MainMenuScreen';
 import CalendarScreen from '../screens/CalendarScreen/CalendarScreen'; // Para calendario o lista
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 
-
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
