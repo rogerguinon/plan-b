@@ -241,7 +241,7 @@ export default function EventDetailScreen({ route, navigation }) {
       </TouchableOpacity>
 
       {/* Gastos */}
-      <TouchableOpacity onPress={() => navigation.navigate(/* PANTALLA DE GASTOS */)}>
+      <TouchableOpacity onPress={() => navigation.navigate('ExpenseManagement', { id: event.id, eventTitle: event.title })}>
         <View style={[styles.section, styles.gastosSection]}>
           <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
           <Text>Ejemplo 1</Text>

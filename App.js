@@ -10,6 +10,7 @@ import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
 import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import MainMenuScreen from './src/screens/MainMenuScreen/MainMenuScreen';
+import ExpenseManagementScreen from './src/screens/ExpenseManagement/ExpenseManagement';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +19,7 @@ export default function App() {
     // Envuelve toda la navegación con el provider
     <EventProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login"> 
+        <Stack.Navigator initialRouteName="Detalles"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={MainMenuScreen} options={{ headerShown: false }}/>
@@ -27,6 +28,7 @@ export default function App() {
           <Stack.Screen name="Editar" component={EditSurveyScreen} />
           <Stack.Screen name="Encuestas" component={SurveysScreen} />
           <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="ExpenseManagement" component={ExpenseManagementScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </EventProvider>
