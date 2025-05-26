@@ -31,11 +31,26 @@ export default function EventDetailScreen({ route, navigation }) {
   const [participantesFiltrados, setFilteredParticipants] = useState(participantes);
 
   useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('EditEvent')}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginRight: 10,
+            }}
+          >
+            <Ionicons name="pencil-outline" size={20} color="#d46bcf" style={{ marginRight: 5 }} />
+            <Text style={{ color: '#d46bcf', fontSize: 16 }}>Editar</Text>
+          </TouchableOpacity>
+      ),
+    });
     const filtrados = participantesAsistencia.filter(p =>
       p.name.toLowerCase().includes(searchText.toLowerCase())
     );
     setFilteredParticipants(filtrados);
-  }, [searchText, participantesAsistencia]);
+  }, [searchText, participantesAsistencia, navigation]);
   
   const [asistencia, setAsistencia] = useState(usuario.asistencia || '-');
 
@@ -60,6 +75,7 @@ export default function EventDetailScreen({ route, navigation }) {
     no: 'No asistirán',
     '-': 'Sin respuesta',
   };
+
 
   const renderParticipantCompleto = ({ item, index }) => {
     let iconName = '';
@@ -119,6 +135,7 @@ export default function EventDetailScreen({ route, navigation }) {
   
   return (
     <View style={styles.container}>
+
       <Text style={styles.title}>{event.title}</Text>
 
       <View style={styles.infoBox}>
@@ -127,17 +144,17 @@ export default function EventDetailScreen({ route, navigation }) {
 
       <View style={styles.detailsColumn}>
         <View style={styles.detailsRow}>
-          <Ionicons name="location-outline" size={20} color="#d46bcf" />
+          <Ionicons name="location-outline" size={30} color="#d46bcf" />
           <Text style={styles.detailText}>{event.location}</Text>
         </View>
 
         <View style={styles.detailsRow}>
-          <Ionicons name="calendar-outline" size={20} color="#d46bcf" />
+          <Ionicons name="calendar-outline" size={30} color="#d46bcf" />
           <Text style={styles.detailText}>{event.date}</Text>
         </View>
 
         <View style={styles.detailsRow}>
-          <Ionicons name="time-outline" size={20} color="#d46bcf" />
+          <Ionicons name="time-outline" size={30} color="#d46bcf" />
           <Text style={styles.detailText}>{event.time}</Text>
         </View>
       </View>
@@ -292,13 +309,14 @@ const styles = StyleSheet.create({
   infoBox: { backgroundColor: '#f0f4ff', padding: 12, borderRadius: 10, marginBottom: 20 },
   subtitle: { fontSize: 16 },
   detailsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  detailText: { marginLeft: 5, fontSize: 14 },
+  detailText: { marginLeft: 10, fontSize: 15 },
   iconMarginLeft: { marginLeft: 10 },
 
   section: {
     padding: 15,
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10,
     position: 'relative',
   },
 
