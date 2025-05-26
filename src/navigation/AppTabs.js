@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MainMenuScreen from '../screens/MainMenuScreen/MainMenuScreen';
 import CalendarScreen from '../screens/CalendarScreen/CalendarScreen'; // Para calendario o lista
 import UserInfoScreen from '../screens/UserInfoScreen/UserInfoScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
