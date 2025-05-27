@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEventos } from '../../context/EventContext';
 
+
 export default function EventDetailScreen({ route, navigation }) {
   const { event } = route.params;
   const { surveyMap, participantesPorEvento } = useEventos();
@@ -324,6 +325,12 @@ export default function EventDetailScreen({ route, navigation }) {
         )}
       </View>
 
+      {/* Chat */}
+      <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
+        <Text style={styles.chatLinkText}>Chat</Text>
+        <Ionicons name="arrow-down" size={16} color="#007AFF" style={{ marginLeft: 4 }} />
+      </TouchableOpacity>
+
     </View>
   );  
 }
@@ -596,5 +603,18 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#333',
   },
+  
+  chatLink: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
 
+  chatLinkText: {
+    color: '#007aff', 
+    fontSize: 16,
+  },
 });
