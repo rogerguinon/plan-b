@@ -19,7 +19,7 @@ export default function App() {
     // Envuelve toda la navegación con el provider
     <EventProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="ExpenseManagement"> 
+        <Stack.Navigator initialRouteName="Main"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
