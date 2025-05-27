@@ -138,192 +138,194 @@ export default function EventDetailScreen({ route, navigation }) {
 
       <Text style={styles.title}>{event.title}</Text>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.subtitle}>{event.description}</Text>
-      </View>
-
-      <View style={styles.detailsColumn}>
-        <View style={styles.detailsRow}>
-          <Ionicons name="location-outline" size={30} color="#d46bcf" />
-          <Text style={styles.detailText}>{event.location}</Text>
+      <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingRight: 10 }]}>
+        <View style={styles.infoBox}>
+          <Text style={styles.subtitle}>{event.description}</Text>
         </View>
 
-        <View style={styles.detailsRow}>
-          <Ionicons name="calendar-outline" size={30} color="#d46bcf" />
-          <Text style={styles.detailText}>{event.date}</Text>
+        <View style={styles.detailsColumn}>
+          <View style={styles.detailsRow}>
+            <Ionicons name="location-outline" size={30} color="#d46bcf" />
+            <Text style={styles.detailText}>{event.location}</Text>
+          </View>
+
+          <View style={styles.detailsRow}>
+            <Ionicons name="calendar-outline" size={30} color="#d46bcf" />
+            <Text style={styles.detailText}>{event.date}</Text>
+          </View>
+
+          <View style={styles.detailsRow}>
+            <Ionicons name="time-outline" size={30} color="#d46bcf" />
+            <Text style={styles.detailText}>{event.time}</Text>
+          </View>
         </View>
 
-        <View style={styles.detailsRow}>
-          <Ionicons name="time-outline" size={30} color="#d46bcf" />
-          <Text style={styles.detailText}>{event.time}</Text>
-        </View>
-      </View>
-
-      {/* Tarjeta de Participantes */}
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
-        <View style={[styles.section, styles.participantsSection]}>
-          <Text style={styles.sectionTitle}>
-            {participantes.length} Participantes
-          </Text>
-          <MaterialCommunityIcons
-            name="account-group"
-            size={25}
-            color="black"
-            style={{ marginLeft: 10 }}
-          />
-        </View>
-      </TouchableOpacity>
-
-      {/* Modal con todos los participantes */}
-      <Modal visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Todos los participantes</Text>
-          <Text style={styles.modalSubtitle}>{participantes.length} personas</Text>
-
-          {/* Buscador */}
-          <View style={styles.searchBox}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar participante"
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholderTextColor="#999"
+        {/* Tarjeta de Participantes */}
+        <TouchableOpacity onPress={() => setModalVisible(true)}>
+          <View style={[styles.section, styles.participantsSection]}>
+            <Text style={styles.sectionTitle}>
+              {participantes.length} Participantes
+            </Text>
+            <MaterialCommunityIcons
+              name="account-group"
+              size={25}
+              color="black"
+              style={{ marginLeft: 10 }}
             />
-            <Ionicons name="search" size={20} color="#999" />
           </View>
+        </TouchableOpacity>
 
-          {/* Línea rosa justo antes de la lista */}
-            <View
-              style={{
-                borderTopWidth: 1,
-                borderColor: '#d46bcf',
-                width: '100%',
-              }}
-            />
+        {/* Modal con todos los participantes */}
+        <Modal visible={modalVisible} animationType="slide">
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Todos los participantes</Text>
+            <Text style={styles.modalSubtitle}>{participantes.length} personas</Text>
 
-          {/* Lista con scroll dinámico */}
-          <View style={{ paddingHorizontal: 20, flex: 1, maxHeight: 500}}>
-            <ScrollView
-              showsVerticalScrollIndicator={true} 
-              style={{ flex: 1 }} 
-              contentContainerStyle={{ paddingBottom: 20}}
-            >
-              {participantesFiltrados.map((item, index) => (
-                <View key={item.name + index}>
-                  {renderParticipantCompleto({ item, index })}
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-            {/* Línea rosa justo después de la lista */}
-            <View
-              style={{
-                borderTopWidth: 1,
-                borderColor: '#d46bcf',
-                width: '100%',
-              }}
-            />
-
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(false);
-                setSearchText('');   // Aquí limpias el buscador
-              }}
-              style={[
-                styles.closeButton,
-                {
-                  borderWidth: 1,
-                  borderColor: '#d46bcf', // contorno rosa
-                  backgroundColor: 'transparent', // sin fondo
-                },
-              ]}
-            >
-              <Text style={[styles.closeButtonText, { color: '#d46bcf' }]}>Cerrar</Text>
-            </TouchableOpacity>
-
-        </View>
-      </Modal>
-
-      {/* Votaciones */}
-      <TouchableOpacity onPress={() => navigation.navigate('Encuestas', { id: event.id, eventTitle: event.title })}>
-        <View style={[styles.section, styles.votacionesSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-          
-          <View>
-            <Text style={styles.sectionTitle}>Votaciones</Text>
-            {encuestas.length > 0 ? (
-              encuestas.map((encuesta) => (
-                <Text key={encuesta.id}>{encuesta.question}</Text>
-              ))
-            ) : (
-              <Text>Todavía no hay encuestas para esta quedada.</Text>
-            )}
-          </View>
-
-          <MaterialCommunityIcons
-            name="poll"
-            size={25}
-            color="black"
-            style={{ marginLeft: 10 }}
-          />
-          
-        </View>
-      </TouchableOpacity>
-
-      {/* Gastos */}
-      <TouchableOpacity onPress={() => navigation.navigate(/* PANTALLA DE GASTOS */)}>
-        <View style={[styles.section, styles.gastosSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-          
-          <View>
-            <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
-            <Text>Ejemplo 1</Text>
-            <Text>Ejemplo 2</Text>
-          </View>
-
-          <MaterialCommunityIcons
-            name="cash-multiple"
-            size={25}
-            color="black"
-            style={{ marginLeft: 10 }}
-          />
-          
-        </View>
-      </TouchableOpacity>
-
-
-      {/*Asistencia*/}
-      <View style={[styles.asistenciaContainer, asistencia === 'si' ? styles.si : asistencia === 'no' ? styles.no : null]}>
-        {asistencia === '-' ? (
-          <>
-            <Text style={styles.pregunta}>¿Vas a asistir a la quedada?</Text>
-            <View style={styles.row}>
-              <TouchableOpacity style={styles.btnSi} onPress={marcarSi}>
-                <Text style={styles.btnTexto}>Sí</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.btnNo} onPress={marcarNo}>
-                <Text style={styles.btnTexto}>No</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <View style={styles.resultado}>
-            <View style={styles.resultadoFila}>
-              <Ionicons
-                name={asistencia === 'si' ? 'checkmark-circle' : 'close-circle'}
-                size={20}
-                color={asistencia === 'si' ? '#228B22' : '#cc0000'}
-                style={{ marginRight: 6 }}
+            {/* Buscador */}
+            <View style={styles.searchBox}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Buscar participante"
+                value={searchText}
+                onChangeText={setSearchText}
+                placeholderTextColor="#999"
               />
-              <Text style={styles.resultadoTexto}>
-                {asistencia === 'si' ? 'Asistencia confirmada' : 'Asistencia denegada'}
-              </Text>
+              <Ionicons name="search" size={20} color="#999" />
             </View>
-            <TouchableOpacity style={styles.editBtn} onPress={editarAsistencia}>
-              <Ionicons name="pencil-outline" size={16} color="#333" style={{ marginRight: 6 }} />
-              <Text style={styles.editBtnText}>Editar</Text>
-            </TouchableOpacity>
+
+            {/* Línea rosa justo antes de la lista */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderColor: '#d46bcf',
+                  width: '100%',
+                }}
+              />
+
+            {/* Lista con scroll dinámico */}
+            <View style={{ paddingHorizontal: 20, flex: 1, maxHeight: 500}}>
+              <ScrollView
+                showsVerticalScrollIndicator={true} 
+                style={{ flex: 1 }} 
+                contentContainerStyle={{ paddingBottom: 20}}
+              >
+                {participantesFiltrados.map((item, index) => (
+                  <View key={item.name + index}>
+                    {renderParticipantCompleto({ item, index })}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+              {/* Línea rosa justo después de la lista */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderColor: '#d46bcf',
+                  width: '100%',
+                }}
+              />
+
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                  setSearchText('');   // Aquí limpias el buscador
+                }}
+                style={[
+                  styles.closeButton,
+                  {
+                    borderWidth: 1,
+                    borderColor: '#d46bcf', // contorno rosa
+                    backgroundColor: 'transparent', // sin fondo
+                  },
+                ]}
+              >
+                <Text style={[styles.closeButtonText, { color: '#d46bcf' }]}>Cerrar</Text>
+              </TouchableOpacity>
+
           </View>
-        )}
-      </View>
+        </Modal>
+
+        {/* Votaciones */}
+        <TouchableOpacity onPress={() => navigation.navigate('Encuestas', { id: event.id, eventTitle: event.title })}>
+          <View style={[styles.section, styles.votacionesSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            
+            <View>
+              <Text style={styles.sectionTitle}>Votaciones</Text>
+              {encuestas.length > 0 ? (
+                encuestas.map((encuesta) => (
+                  <Text key={encuesta.id}>{encuesta.question}</Text>
+                ))
+              ) : (
+                <Text>Todavía no hay encuestas para esta quedada.</Text>
+              )}
+            </View>
+
+            <MaterialCommunityIcons
+              name="poll"
+              size={25}
+              color="black"
+              style={{ marginLeft: 10 }}
+            />
+            
+          </View>
+        </TouchableOpacity>
+
+        {/* Gastos */}
+        <TouchableOpacity onPress={() => navigation.navigate(/* PANTALLA DE GASTOS */)}>
+          <View style={[styles.section, styles.gastosSection, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            
+            <View>
+              <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
+              <Text>Ejemplo 1</Text>
+              <Text>Ejemplo 2</Text>
+            </View>
+
+            <MaterialCommunityIcons
+              name="cash-multiple"
+              size={25}
+              color="black"
+              style={{ marginLeft: 10 }}
+            />
+            
+          </View>
+        </TouchableOpacity>
+
+
+        {/*Asistencia*/}
+        <View style={[styles.asistenciaContainer, asistencia === 'si' ? styles.si : asistencia === 'no' ? styles.no : null]}>
+          {asistencia === '-' ? (
+            <>
+              <Text style={styles.pregunta}>¿Vas a asistir a la quedada?</Text>
+              <View style={styles.row}>
+                <TouchableOpacity style={styles.btnSi} onPress={marcarSi}>
+                  <Text style={styles.btnTexto}>Sí</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.btnNo} onPress={marcarNo}>
+                  <Text style={styles.btnTexto}>No</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <View style={styles.resultado}>
+              <View style={styles.resultadoFila}>
+                <Ionicons
+                  name={asistencia === 'si' ? 'checkmark-circle' : 'close-circle'}
+                  size={20}
+                  color={asistencia === 'si' ? '#228B22' : '#cc0000'}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={styles.resultadoTexto}>
+                  {asistencia === 'si' ? 'Asistencia confirmada' : 'Asistencia denegada'}
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.editBtn} onPress={editarAsistencia}>
+                <Ionicons name="pencil-outline" size={16} color="#333" style={{ marginRight: 6 }} />
+                <Text style={styles.editBtnText}>Editar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
       {/* Chat */}
       <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
