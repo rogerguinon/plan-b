@@ -22,7 +22,8 @@ export default function App() {
         <Stack.Navigator initialRouteName="Login"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Main" component={MainMenuScreen} options={{ headerShown: false }}/>
+      
+          <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
           <Stack.Screen name="UserInfo" component={UserInfoScreen} />
           <Stack.Screen name="Detalles" component={EventDetailScreen} />
           <Stack.Screen name="Crear" component={CreateSurveyScreen} />
