@@ -1,19 +1,27 @@
-// src/firebase/firebaseConfig.js
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import Config from 'react-native-config';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, initializeAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
-  apiKey: Config.FIREBASE_API_KEY,
-  authDomain: Config.FIREBASE_AUTH_DOMAIN,
-  projectId: Config.FIREBASE_PROJECT_ID,
-  storageBucket: Config.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID,
-  appId: Config.FIREBASE_APP_ID,
+  apiKey: "AIzaSyDBkmx6zsuGmN6aR_bf0JC91gwQvVDYFcE",
+  authDomain: "plan-b-d83b2.firebaseapp.com",
+  projectId: "plan-b-d83b2",
+  storageBucket: "plan-b-d83b2.appspot.com",
+  messagingSenderId: "435441365762",
+  appId: "1:435441365762:web:e167886875515af3bc481b"
 };
 
-// Esto previene múltiples inicializaciones
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-export { auth };
+const auth =
+  Platform.OS === 'web'
+    ? getAuth(app)
+    : initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+
+const db = getFirestore(app);
+
+export { auth, db };

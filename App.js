@@ -10,6 +10,7 @@ import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
 import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
+import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
 
 const Stack = createNativeStackNavigator();
 
