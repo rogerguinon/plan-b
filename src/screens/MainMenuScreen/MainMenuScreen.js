@@ -4,11 +4,7 @@ import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
 import { deleteEvento } from '../../data/quedadasStorage'; // ajusta la ruta si es distinta
 
-
 const tabs = ['Quedadas actuales', 'Grupos'];
-
-
-
 
 export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
@@ -29,7 +25,6 @@ export default function MainMenuScreen({ navigation }) {
   }, [navigation]);
 
   const defaulProfile = 'https://static.vecteezy.com/system/resources/previews/026/622/156/non_2x/crowd-people-silhouette-icon-illustration-social-icon-flat-style-design-user-group-network-enterprise-team-group-community-member-icon-business-team-work-activity-user-icon-free-vector.jpg';
-
 
   const renderEvent = ({ item }) => (
     <View style={[styles.card, { paddingVertical: 25 }]}>
@@ -113,7 +108,6 @@ export default function MainMenuScreen({ navigation }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 15, paddingTop: 40 },
