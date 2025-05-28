@@ -158,7 +158,7 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const cargarEventos = async () => {
       const almacenados = await getData(KEY_EVENTOS);
-      if (almacenados && almacenados.length > 0) {
+      if (Array.isArray(almacenados) && almacenados.length > 0) {
         setEventos(almacenados);
         // cargar participantes por evento desde los almacenados
         const map = {};
@@ -180,6 +180,17 @@ export const EventProvider = ({ children }) => {
     cargarEventos();
   }, []);
 
+  const refreshEventos = async () => {
+    const almacenados = await getData(KEY_EVENTOS);
+    if (Array.isArray(almacenados)) {
+      setEventos(almacenados);
+      const map = {};
+      almacenados.forEach(ev => {
+        map[ev.id] = ev.participants || [];
+      });
+      setParticipantesPorEvento(map);
+    }
+  };
 
   const agregarEvento = async (nuevoEvento) => {
     setEventos((prev) => {
@@ -219,7 +230,8 @@ export const EventProvider = ({ children }) => {
       participantesPorEvento,
       agregarParticipante,
       surveyMap,
-      agregarEncuesta
+      agregarEncuesta,
+      refreshEventos
     }}>
       {children}
     </EventContext.Provider>
