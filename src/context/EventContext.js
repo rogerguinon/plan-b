@@ -5,6 +5,7 @@ const EventContext = createContext();
 
 // Hook para acceder fácilmente
 export const useEventos = () => useContext(EventContext);
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // QUEDADAS
 const Events = [
@@ -207,6 +208,11 @@ export const EventProvider = ({ children }) => {
     }
   };
 
+  const editarEvento = async (eventoEditado) => {
+    const nuevosEventos = eventos.map(e => e.id === eventoEditado.id ? eventoEditado : e);
+    setEventos(nuevosEventos);
+    await AsyncStorage.setItem('eventos', JSON.stringify(nuevosEventos));
+  };
 
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({
@@ -227,6 +233,7 @@ export const EventProvider = ({ children }) => {
       eventos,
       setEventos,
       agregarEvento,
+      editarEvento,
       participantesPorEvento,
       agregarParticipante,
       surveyMap,

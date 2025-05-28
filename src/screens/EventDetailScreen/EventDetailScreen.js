@@ -35,7 +35,7 @@ export default function EventDetailScreen({ route, navigation }) {
     navigation.setOptions({
       headerRight: () => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('EditEvent')}
+            onPress={() => navigation.navigate('EditEvent', { event })}
             style={{
               flexDirection: 'row',
               alignItems: 'center',

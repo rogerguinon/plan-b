@@ -11,6 +11,7 @@ import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
+import EditEventScreen from './src/screens/EditEventScreen/EditEventScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function App() {
           <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
                     options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
+          <Stack.Screen name="EditEvent" component={EditEventScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </EventProvider>
