@@ -32,7 +32,7 @@ export default function App() {
           <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
                     options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
-          <Stack.Screen name="EditEvent" component={EditEventScreen}/>
+          <Stack.Screen name="EditEvent" component={EditEventScreen} options={{headerShown: false}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </EventProvider>
