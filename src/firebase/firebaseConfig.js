@@ -1,8 +1,17 @@
+// firebaseConfig.js
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+  browserLocalPersistence,
+  setPersistence,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+
+// Solo para nativo
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDBkmx6zsuGmN6aR_bf0JC91gwQvVDYFcE",
@@ -15,13 +24,21 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-const auth =
-  Platform.OS === 'web'
-    ? getAuth(app)
-    : initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
+let auth;
+
+if (Platform.OS === 'web') {
+  auth = getAuth(app);
+  // ⛑️ MUY IMPORTANTE: persistencia en web
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn("⚠️ Error configurando persistencia web:", err);
+  });
+} else {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+}
 
 const db = getFirestore(app);
 
 export { auth, db };
+

@@ -19,19 +19,23 @@ export default function UserInfoScreen({ navigation }) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('📢 authStateChanged:', user);
-      if (user) {
-        setUid(user.uid);
-        setEmail(user.email);
-        await loadUserData(user.uid);
-        loadUserHistory(user.uid);
-      }
-      setLoading(false);
-    });
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    console.log('📢 authStateChanged:', user);
+    if (user) {
+      setUid(user.uid);
+      setEmail(user.email);
+      await loadUserData(user.uid);
+      loadUserHistory(user.uid);
+    } else {
+      // ✅ en web esto puede ser null si no está logueado aún
+      console.warn('⚠️ Usuario no autenticado');
+    }
+    setLoading(false);
+  });
 
-    return unsubscribe;
-  }, []);
+  return unsubscribe;
+}, []);
+
 
   const loadUserData = async (uid) => {
     try {
@@ -109,6 +113,15 @@ export default function UserInfoScreen({ navigation }) {
       </View>
     );
   }
+  if (!uid) {
+  return (
+    <View style={styles.container}>
+      <Text style={{ fontSize: 16, color: 'red', textAlign: 'center' }}>
+        ⚠️ No hay usuario autenticado. Inicia sesión.
+      </Text>
+    </View>
+  );
+}
 
   return (
   <ScrollView contentContainerStyle={styles.container}>
@@ -154,6 +167,7 @@ export default function UserInfoScreen({ navigation }) {
         ))
       )}
     </View>
+    
   </ScrollView>
 );
 

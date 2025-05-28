@@ -3,7 +3,9 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
-import { FIREBASE_API_KEY } from '../../config/firebaseRest';
+
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebaseConfig';
 
 const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
@@ -13,27 +15,12 @@ export default function LoginScreen({ navigation }) {
 
   const handleEmailLogin = async () => {
     try {
-      const res = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password,
-            returnSecureToken: true,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        navigation.replace('Main');
-      } else {
-        Alert.alert('Error al iniciar sesión', data.error?.message || 'Error desconocido');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo conectar con el servidor.');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("✅ Sesión iniciada:", userCredential.user);
+      navigation.replace('Main');
+    } catch (error) {
+      console.error("❌ Error al iniciar sesión:", error);
+      Alert.alert('Error al iniciar sesión', error.message || 'Error desconocido');
     }
   };
 
