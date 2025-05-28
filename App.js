@@ -11,6 +11,9 @@ import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
+import ExpensesTabs from './src/navigation/ExpensesTabs';
+import CreateExpenseScreen from './src/screens/ExpenseTrackerScreens/CreateExpenseScreen'
+import { ExpenseProvider } from './src/context/ExpenseContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,21 +21,24 @@ export default function App() {
   return (
     // Envuelve toda la navegación con el provider
     <EventProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Main"> 
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
-          <Stack.Screen name="UserInfo" component={UserInfoScreen} />
-          <Stack.Screen name="Detalles" component={EventDetailScreen} />
-          <Stack.Screen name="Crear" component={CreateSurveyScreen} />
-          <Stack.Screen name="Editar" component={EditSurveyScreen} />
-          <Stack.Screen name="Encuestas" component={SurveysScreen} />
-          <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
-                    options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <ExpenseProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="GastosEvento"> 
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
+            <Stack.Screen name="UserInfo" component={UserInfoScreen} />
+            <Stack.Screen name="Detalles" component={EventDetailScreen} />
+            <Stack.Screen name="Crear" component={CreateSurveyScreen} />
+            <Stack.Screen name="Editar" component={EditSurveyScreen} />
+            <Stack.Screen name="Encuestas" component={SurveysScreen} />
+            <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
+            <Stack.Screen name="GastosEvento" component={ExpensesTabs} options={{ title: 'Cumple Martí' }} />
+            <Stack.Screen name="CreateExpense" component={CreateExpenseScreen} options={{ title: 'Nuevo Gasto' }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ExpenseProvider>
     </EventProvider>
   )
 };
