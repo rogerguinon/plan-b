@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, } from 'react';
+import { Alert, Platform} from 'react-native';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
@@ -12,9 +13,37 @@ export default function MainMenuScreen({ navigation }) {
   const { eventos, surveyMap, refreshEventos } = useEventos();
 
   const handleEliminarEvento = async (id) => {
-    await deleteEvento(id);
-    await refreshEventos(); // <-- actualiza lista tras borrar
+    try {
+      if (Platform.OS === 'web') {
+        const confirmado = window.confirm('¿Estás seguro de que quieres eliminar esta quedada?');
+        if (confirmado) {
+          await deleteEvento(id);
+          await refreshEventos();
+        }
+      } else {
+        Alert.alert(
+          'Eliminar quedada',
+          '¿Estás seguro de que quieres eliminar esta quedada?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Eliminar',
+              style: 'destructive',
+              onPress: async () => {
+                await deleteEvento(id);
+                await refreshEventos();
+              },
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Error al eliminar el evento:', error);
+      Alert.alert('Error', 'No se pudo eliminar el evento');
+    }
   };
+
+
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -28,43 +57,46 @@ export default function MainMenuScreen({ navigation }) {
 
   const renderEvent = ({ item }) => (
     <View style={[styles.card, { paddingVertical: 25 }]}>
-      <TouchableOpacity
-        style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
-        onPress={() => {
-          const encuestas = surveyMap[item.id] || [];
-          navigation.navigate('Detalles', { event: item, encuestas });
-        }}
-      >
-        <Image source={{ uri: item.image || defaulProfile }} style={styles.eventImage} />
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={styles.eventTitle}>{item.title}</Text>
-          <View style={styles.metaInfo}>
-            {item.location && (
-              <View style={styles.infoRow}>
-                <Ionicons name="location-outline" size={16} color="#666" style={styles.icon} />
-                <Text style={styles.infoText}>{item.location}</Text>
-              </View>
-            )}
-            {item.date && (
-              <View style={styles.infoRow}>
-                <Ionicons name="calendar-outline" size={16} color="#666" style={styles.icon} />
-                <Text style={styles.infoText}>{item.date}</Text>
-              </View>
-            )}
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {/* Zona táctil que abre detalles */}
+        <TouchableOpacity
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
+          onPress={() => {
+            navigation.navigate('Detalles', { event: item });
+          }}
+        >
+          <Image source={{ uri: item.image || defaulProfile }} style={styles.eventImage} />
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={styles.eventTitle}>{item.title}</Text>
+            <View style={styles.metaInfo}>
+              {item.location && (
+                <View style={styles.infoRow}>
+                  <Ionicons name="location-outline" size={16} color="#666" style={styles.icon} />
+                  <Text style={styles.infoText}>{item.location}</Text>
+                </View>
+              )}
+              {item.date && (
+                <View style={styles.infoRow}>
+                  <Ionicons name="calendar-outline" size={16} color="#666" style={styles.icon} />
+                  <Text style={styles.infoText}>{item.date}</Text>
+                </View>
+              )}
+            </View>
           </View>
-        </View>
-        <Ionicons name="chevron-forward" size={14} color="#666" style={styles.arrowIcon} />
-      </TouchableOpacity>
+          <Ionicons name="chevron-forward" size={20} color="#666" style={{ marginLeft: 6 }} />
+        </TouchableOpacity>
 
-      {/* Botón de eliminar */}
-      <TouchableOpacity
-        onPress={() => handleEliminarEvento(item.id)}
-        style={{ marginLeft: 8 }}
-      >
-        <Ionicons name="trash-outline" size={20} color="red" />
-      </TouchableOpacity>
+        {/* Botón de eliminar, separado del área táctil principal */}
+        <TouchableOpacity
+          onPress={() => handleEliminarEvento(item.id)}
+          style={{ marginLeft: 8 }}
+        >
+          <Ionicons name="trash-outline" size={20} color="red" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
+
 
   return (
     <View style={styles.container}>

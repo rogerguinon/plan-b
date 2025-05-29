@@ -228,12 +228,40 @@ export const EventProvider = ({ children }) => {
     }));
   };
 
+  const deleteEvento = async (id) => {
+    try {
+      const nuevosEventos = eventos.filter(e => e.id !== id);
+      setEventos(nuevosEventos);
+      await AsyncStorage.setItem(KEY_EVENTOS, JSON.stringify(nuevosEventos));
+
+      // También eliminamos del mapa de participantes si existe
+      setParticipantesPorEvento((prev) => {
+        const actualizado = { ...prev };
+        delete actualizado[id];
+        return actualizado;
+      });
+
+      // Y del mapa de encuestas, si lo deseas
+      setSurveyMap((prev) => {
+        const actualizado = { ...prev };
+        delete actualizado[id];
+        return actualizado;
+      });
+
+    } catch (error) {
+      console.error("Error al eliminar el evento:", error);
+      throw error;
+    }
+  };
+
+
   return (
     <EventContext.Provider value={{
       eventos,
       setEventos,
       agregarEvento,
       editarEvento,
+      deleteEvento,
       participantesPorEvento,
       agregarParticipante,
       surveyMap,

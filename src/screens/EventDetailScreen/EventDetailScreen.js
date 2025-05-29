@@ -6,7 +6,7 @@ import { useEventos } from '../../context/EventContext';
 
 
 export default function EventDetailScreen({ route, navigation }) {
-  const { event } = route.params;
+  const { event, onEliminar } = route.params;
   const { surveyMap, participantesPorEvento } = useEventos();
   const encuestas = surveyMap[event.id] || [];
   

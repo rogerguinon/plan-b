@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function EditEventScreen({ route, navigation }) {
   const { event } = route.params;
-  const { editarEvento } = useEventos();
+  const { editarEvento, deleteEvento, refreshEventos } = useEventos();
 
   const [editedEvent, setEditedEvent] = useState({ ...event });
 
@@ -21,6 +21,32 @@ export default function EditEventScreen({ route, navigation }) {
     await editarEvento(editedEvent);
     navigation.navigate('Main');
   };
+
+  const handleEliminarEvento = async () => {
+    Alert.alert(
+      '¿Eliminar quedada?',
+      'Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('Eliminando evento ID:', event.id); // debug
+              await deleteEvento(event.id);
+              await refreshEventos();
+              navigation.popToTop(); // volver a pantalla principal
+            } catch (error) {
+              console.error('Error al eliminar evento:', error);
+              Alert.alert('Error', 'No se pudo eliminar el evento.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
 
   return (
     <View style={styles.container}>
@@ -78,6 +104,21 @@ export default function EditEventScreen({ route, navigation }) {
           <Text style={styles.createText}>Guardar cambios</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        onPress={handleEliminarEvento}
+        style={{
+          backgroundColor: '#ff4d4d',
+          padding: 12,
+          borderRadius: 8,
+          alignItems: 'center',
+          marginTop: 20,
+        }}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Eliminar quedada</Text>
+      </TouchableOpacity>
+
+
     </View>
   );
 }
@@ -104,4 +145,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   createText: { color: '#fff', fontWeight: 'bold' },
+    botonEliminar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 40,
+    padding: 12,
+    backgroundColor: '#ffe5e5',
+    borderRadius: 12,
+  },
+
 });
