@@ -325,13 +325,15 @@ export default function EventDetailScreen({ route, navigation }) {
             </View>
           )}
         </View>
+
+        {/* Chat */}
+        <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
+          <Text style={styles.chatLinkText}>Chat</Text>
+          <Ionicons name="arrow-down" size={16} color="#007AFF" style={{ marginLeft: 4 }} />
+        </TouchableOpacity>
+
       </ScrollView>
 
-      {/* Chat */}
-      <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
-        <Text style={styles.chatLinkText}>Chat</Text>
-        <Ionicons name="arrow-down" size={16} color="#007AFF" style={{ marginLeft: 4 }} />
-      </TouchableOpacity>
 
     </View>
   );  
@@ -607,12 +609,13 @@ const styles = StyleSheet.create({
   },
   
   chatLink: {
-    marginTop: 20,
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
     paddingVertical: 4,
     paddingHorizontal: 8,
+    marginTop: 30,
   },
 
   chatLinkText: {
