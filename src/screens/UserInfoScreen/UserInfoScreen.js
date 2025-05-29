@@ -68,22 +68,29 @@ export default function UserInfoScreen({ navigation }) {
   };
 
   const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
+  try {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
       Alert.alert('Permiso denegado', 'Se necesita acceso a la galería');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
       quality: 0.5,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
       setPhoto(uri);
     }
-  };
+  } catch (error) {
+    console.error('❌ Error al seleccionar imagen:', error);
+    Alert.alert('Error', 'No se pudo seleccionar la imagen.');
+  }
+};
+
 
   const handleSave = async () => {
     if (!uid) {
