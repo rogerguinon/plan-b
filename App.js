@@ -8,7 +8,6 @@ import CreateSurveyScreen from './src/screens/CreateSurveyScreen/CreateSurveyScr
 import EditSurveyScreen from './src/screens/EditSurveyScreen/EditSurveyScreen';
 import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
 import { EventProvider } from './src/context/EventContext';
-import AddParticipants from './src/screens/AddParticipants/AddParticipants';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
@@ -21,7 +20,7 @@ export default function App() {
     // Envuelve toda la navegación con el provider
     <EventProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Main"> 
+        <Stack.Navigator initialRouteName="Login"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
@@ -30,11 +29,10 @@ export default function App() {
           <Stack.Screen name="Crear" component={CreateSurveyScreen} />
           <Stack.Screen name="Editar" component={EditSurveyScreen} />
           <Stack.Screen name="Encuestas" component={SurveysScreen} />
-          <Stack.Screen name="AddParticipants" component={AddParticipants} options={{ headerShown: false }}/> 
           <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
                     options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
-          <Stack.Screen name="EditEvent" component={EditEventScreen} options={{headerShown: false}}/>
+          <Stack.Screen name="EditEvent" component={EditEventScreen}/>
         </Stack.Navigator>
       </NavigationContainer>
     </EventProvider>

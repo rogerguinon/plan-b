@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -41,40 +39,46 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Plan B</Text>
+    <TouchableWithoutFeedback onPress={() => {
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+      }
+    }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Plan B</Text>
 
-      <TextInput
-        placeholder="Correo electrónico"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Contraseña"
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          placeholder="Correo electrónico"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+        />
+        <TextInput
+          placeholder="Contraseña"
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
+        </TouchableOpacity>
 
-      <View style={styles.separator}>
-        <Text style={styles.orText}>o</Text>
+        <View style={styles.separator}>
+          <Text style={styles.orText}>o</Text>
+        </View>
+
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+          <Text style={styles.buttonText}>Iniciar sesión con Google</Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-        <Text style={styles.buttonText}>Iniciar sesión con Google</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
