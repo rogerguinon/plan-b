@@ -118,12 +118,18 @@ export default function EditSurveyScreen({ route, navigation }) {
   const eliminarEncuesta = async () => {
   try {
     await deleteEncuesta(survey.id);
-    navigation.setParams({ encuestaEliminada: survey.id }); // ← pasarlo
-    navigation.goBack(); // ← esto sí reactiva useFocusEffect
+
+    // Llamar al callback que se pasó desde ViewSurveysScreen
+    if (route.params?.onGoDelete) {
+      route.params.onGoDelete(survey.id);
+    }
+
+    navigation.goBack(); // vuelve atrás con la lista ya actualizada
   } catch (e) {
     Alert.alert("Error", "No se pudo eliminar la encuesta.");
   }
-  };
+};
+
 
 
   return (
