@@ -46,10 +46,8 @@ export default function CreateEventScreen({ navigation }) {
   };
 
   return (
+    
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-      </TouchableOpacity>
 
       <Text style={styles.title}>Nueva quedada</Text>
 
@@ -109,7 +107,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20 },
   backButton: { marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  iconSection: { alignItems: 'center', marginVertical: 20 },
+  iconSection: { alignItems: 'center', marginVertical: 20, marginTop: 30 },
   iconText: { marginTop: 8, color: '#555', fontSize: 14 },
   form: { marginTop: 10 },
   input: {
