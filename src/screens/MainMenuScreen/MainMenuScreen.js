@@ -1,28 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
+import { deleteEvento } from '../../data/quedadasStorage'; // ajusta la ruta si es distinta
 
 const tabs = ['Quedadas actuales', 'Grupos'];
 
-
-
-
 export default function MainMenuScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('Quedadas actuales');
-  const { eventos, surveyMap} = useEventos(); 
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { eventos, surveyMap, refreshEventos } = useEventos();
+
+  const handleEliminarEvento = async (id) => {
+    await deleteEvento(id);
+    await refreshEventos(); // <-- actualiza lista tras borrar
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setRefreshKey(prev => prev + 1);
+    });
+
+    return unsubscribe; // limpia el listener al desmontar
+  }, [navigation]);
+
   const defaulProfile = 'https://static.vecteezy.com/system/resources/previews/026/622/156/non_2x/crowd-people-silhouette-icon-illustration-social-icon-flat-style-design-user-group-network-enterprise-team-group-community-member-icon-business-team-work-activity-user-icon-free-vector.jpg';
 
-
   const renderEvent = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => {
-        const encuestas = surveyMap[item.id] || [];
-        navigation.navigate('Detalles', { event: item, encuestas });
-      }}
-    >
-      <View style={[styles.card, { paddingVertical: 25 }]}>
-        <Image source={{ uri: (item.image || defaulProfile)}} style={styles.eventImage} />
+    <View style={[styles.card, { paddingVertical: 25 }]}>
+      <TouchableOpacity
+        style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
+        onPress={() => {
+          const encuestas = surveyMap[item.id] || [];
+          navigation.navigate('Detalles', { event: item, encuestas });
+        }}
+      >
+        <Image source={{ uri: item.image || defaulProfile }} style={styles.eventImage} />
         <View style={{ flex: 1, marginLeft: 12 }}>
           <Text style={styles.eventTitle}>{item.title}</Text>
           <View style={styles.metaInfo}>
@@ -41,11 +54,17 @@ export default function MainMenuScreen({ navigation }) {
           </View>
         </View>
         <Ionicons name="chevron-forward" size={14} color="#666" style={styles.arrowIcon} />
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+
+      {/* Botón de eliminar */}
+      <TouchableOpacity
+        onPress={() => handleEliminarEvento(item.id)}
+        style={{ marginLeft: 8 }}
+      >
+        <Ionicons name="trash-outline" size={20} color="red" />
+      </TouchableOpacity>
+    </View>
   );
-
-
 
   return (
     <View style={styles.container}>
@@ -77,8 +96,10 @@ export default function MainMenuScreen({ navigation }) {
           data={eventos}
           keyExtractor={(item) => item.id}
           renderItem={renderEvent}
+          extraData={refreshKey} // fuerza re-render al cambiar refreshKey
           contentContainerStyle={{ paddingBottom: 80 }}
         />
+
       ) : (
         <View style={styles.emptyGroups}>
           <Text style={{ color: '#999' }}>Aquí irían los grupos...</Text>
@@ -87,7 +108,6 @@ export default function MainMenuScreen({ navigation }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 15, paddingTop: 40 },

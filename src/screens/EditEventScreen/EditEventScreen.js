@@ -5,44 +5,21 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useEventos } from '../../context/EventContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function CreateEventScreen({ navigation }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  const [image, setImage] = useState(''); // Nuevo estado para el link de imagen
+export default function EditEventScreen({ route, navigation }) {
+  const { event } = route.params;
+  const { editarEvento } = useEventos();
 
-  const { agregarEvento } = useEventos();
+  const [editedEvent, setEditedEvent] = useState({ ...event });
 
-  const handleCreate = async () => {
-    if (!title.trim()) {
+  const handleSave = async () => {
+    if (!editedEvent.title.trim()) {
       Alert.alert('Error', 'El título es obligatorio.');
       return;
     }
-
-    const nuevoEvento = {
-      id: Date.now().toString(), // o usa uuid si prefieres
-      title,
-      description,
-      date,
-      time,
-      location,
-      participants: [],
-    };
-
-    if (image.trim()) {
-      nuevoEvento.image = image.trim();
-    }
-
-    try {
-      await agregarEvento(nuevoEvento);
-      navigation.navigate('Main');
-    } catch (error) {
-      console.error('Error al guardar el evento:', error);
-      Alert.alert('Error', 'No se pudo guardar el evento.');
-    }
+    await editarEvento(editedEvent);
+    navigation.navigate('Main');
   };
 
   return (
@@ -51,54 +28,54 @@ export default function CreateEventScreen({ navigation }) {
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Nueva quedada</Text>
+      <Text style={styles.title}>Editar quedada</Text>
 
       <View style={styles.iconSection}>
-        <Ionicons name="people-outline" size={50} color="#d46bcf" />
-        <Text style={styles.iconText}>Añadir participantes</Text>
+        <Ionicons name="create-outline" size={50} color="#d46bcf" />
+        <Text style={styles.iconText}>Modifica los datos</Text>
       </View>
 
       <View style={styles.form}>
         <TextInput
           style={styles.input}
           placeholder="Título de la quedada"
-          value={title}
-          onChangeText={setTitle}
+          value={editedEvent.title}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, title: text }))}
         />
         <TextInput
           style={[styles.input, { height: 80 }]}
           placeholder="Descripción (opcional)"
-          value={description}
-          onChangeText={setDescription}
+          value={editedEvent.description || ''}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, description: text }))}
           multiline
         />
         <TextInput
           style={styles.input}
           placeholder="Fecha (ej: 2025-05-24)"
-          value={date}
-          onChangeText={setDate}
+          value={editedEvent.date}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, date: text }))}
         />
         <TextInput
           style={styles.input}
           placeholder="Hora (ej: 19:30)"
-          value={time}
-          onChangeText={setTime}
+          value={editedEvent.time}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, time: text }))}
         />
         <TextInput
           style={styles.input}
           placeholder="Lugar"
-          value={location}
-          onChangeText={setLocation}
+          value={editedEvent.location}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, location: text }))}
         />
         <TextInput
           style={styles.input}
           placeholder="URL de imagen (opcional)"
-          value={image}
-          onChangeText={setImage}
+          value={editedEvent.image || ''}
+          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, image: text }))}
         />
 
-        <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
-          <Text style={styles.createText}>Crear</Text>
+        <TouchableOpacity style={styles.createButton} onPress={handleSave}>
+          <Text style={styles.createText}>Guardar cambios</Text>
         </TouchableOpacity>
       </View>
     </View>

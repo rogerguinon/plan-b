@@ -5,6 +5,7 @@ const EventContext = createContext();
 
 // Hook para acceder fácilmente
 export const useEventos = () => useContext(EventContext);
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // QUEDADAS
 const Events = [
@@ -158,7 +159,7 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const cargarEventos = async () => {
       const almacenados = await getData(KEY_EVENTOS);
-      if (almacenados && almacenados.length > 0) {
+      if (Array.isArray(almacenados) && almacenados.length > 0) {
         setEventos(almacenados);
         // cargar participantes por evento desde los almacenados
         const map = {};
@@ -180,6 +181,17 @@ export const EventProvider = ({ children }) => {
     cargarEventos();
   }, []);
 
+  const refreshEventos = async () => {
+    const almacenados = await getData(KEY_EVENTOS);
+    if (Array.isArray(almacenados)) {
+      setEventos(almacenados);
+      const map = {};
+      almacenados.forEach(ev => {
+        map[ev.id] = ev.participants || [];
+      });
+      setParticipantesPorEvento(map);
+    }
+  };
 
   const agregarEvento = async (nuevoEvento) => {
     setEventos((prev) => {
@@ -196,6 +208,11 @@ export const EventProvider = ({ children }) => {
     }
   };
 
+  const editarEvento = async (eventoEditado) => {
+    const nuevosEventos = eventos.map(e => e.id === eventoEditado.id ? eventoEditado : e);
+    setEventos(nuevosEventos);
+    await AsyncStorage.setItem('eventos', JSON.stringify(nuevosEventos));
+  };
 
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({
@@ -216,10 +233,12 @@ export const EventProvider = ({ children }) => {
       eventos,
       setEventos,
       agregarEvento,
+      editarEvento,
       participantesPorEvento,
       agregarParticipante,
       surveyMap,
-      agregarEncuesta
+      agregarEncuesta,
+      refreshEventos
     }}>
       {children}
     </EventContext.Provider>

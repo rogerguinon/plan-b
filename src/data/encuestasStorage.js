@@ -42,7 +42,13 @@ export const updateEncuesta = async (id, actualizada) => {
 
 // Eliminar encuesta
 export const deleteEncuesta = async (id) => {
-  const todas = await getData(KEY);
-  const nuevas = todas.filter(e => e.id !== id);
-  await storeData(KEY, nuevas);
+  try {
+    const todas = await getData("ENCUESTAS");
+    const nuevas = todas.filter(e => e.id !== id);
+    await storeData("ENCUESTAS", nuevas);
+    console.log("Encuesta eliminada:", id);
+  } catch (e) {
+    console.error("Error eliminando encuesta:", e);
+    throw e;
+  }
 };
