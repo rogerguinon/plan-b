@@ -138,7 +138,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
       <Text style={styles.title}>{event.title}</Text>
 
-      <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingRight: 10 }]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.infoBox}>
           <Text style={styles.subtitle}>{event.description}</Text>
         </View>
@@ -256,7 +256,7 @@ export default function EventDetailScreen({ route, navigation }) {
                   <Text key={encuesta.id}>{encuesta.question}</Text>
                 ))
               ) : (
-                <Text>Todavía no hay encuestas para esta quedada.</Text>
+                <Text>Todavía no hay encuestas</Text>
               )}
             </View>
 

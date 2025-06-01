@@ -6,16 +6,21 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useEventos } from '../../context/EventContext';
 
 const convertirFecha = (fechaStr) => {
-  const fecha = new Date(fechaStr);
-  if (isNaN(fecha)) return '';
+  const meses = {
+    Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+    Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+  };
 
-  const year = fecha.getFullYear();
-  const month = String(fecha.getMonth() + 1).padStart(2, '0');
-  const day = String(fecha.getDate()).padStart(2, '0');
+  const partes = fechaStr.split(' ');
+  if (partes.length !== 3) return '';
 
-  return `${year}-${month}-${day}`;
+  const mes = meses[partes[0]];
+  const dia = partes[1].replace(',', '').padStart(2, '0');
+  const anio = partes[2];
+
+  if (!mes) return '';
+  return `${anio}-${mes}-${dia}`;
 };
-
 
 
 LocaleConfig.locales['es'] = {
@@ -43,6 +48,7 @@ export default function CalendarScreen({navigation}) {
   const markedDates = {};
   eventos.forEach(ev => {
     const fecha = convertirFecha(ev.date);
+    console.log('Fecha original:', ev.date, '→ Fecha convertida:', fecha);
     markedDates[fecha] = { marked: true, dotColor: '#d46bcf' };
   });
   //eventos ordenados x fecha
@@ -69,7 +75,7 @@ export default function CalendarScreen({navigation}) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>PlanB</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddParticipants')}>
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateEvent')}>
           <MaterialIcons name="add-box" size={30} color="#d46bcf" />
         </TouchableOpacity>
       </View>
@@ -124,7 +130,7 @@ export default function CalendarScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 15, paddingTop: 40 },
+  container: { flex: 1, backgroundColor: '#fff', paddingHorizontal: 15, paddingTop: 20 },
   text: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
   container_calendar: {justifyContent: 'center', alignItems: 'center'},
   calendar: {width:350},
