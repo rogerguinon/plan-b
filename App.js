@@ -1,13 +1,15 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator} from '@react-navigation/native-stack';
+import { EventProvider } from './src/context/EventContext';
+import AppTabs from './src/navigation/AppTabs';
+
+// Importación de pantallas
 import LoginScreen from './src/screens/LoginScreen/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen/RegisterScreen';
-import AppTabs from './src/navigation/AppTabs';
 import EventDetailScreen from './src/screens/EventDetailScreen/EventDetailScreen';
 import CreateSurveyScreen from './src/screens/CreateSurveyScreen/CreateSurveyScreen';
 import EditSurveyScreen from './src/screens/EditSurveyScreen/EditSurveyScreen';
 import SurveysScreen from './src/screens/SurveysScreen/SurveysScreen';
-import { EventProvider } from './src/context/EventContext';
 import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen';
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
@@ -31,9 +33,8 @@ export default function App() {
           <Stack.Screen name="Editar" component={EditSurveyScreen} />
           <Stack.Screen name="Encuestas" component={SurveysScreen} />
           <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{title: 'Crear quedada'}}/>
-          <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
-                    options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
-          <Stack.Screen name="EditEvent" component={EditEventScreen}/>
+          <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
+          <Stack.Screen name="EditEvent" component={EditEventScreen} options={{title: 'Editar quedada'}}/>
           <Stack.Screen name="DetallesGrupo" component={GroupDetailScreen} options={{title: 'Detalles'}}/>
         </Stack.Navigator>
       </NavigationContainer>

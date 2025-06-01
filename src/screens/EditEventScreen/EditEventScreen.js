@@ -128,7 +128,7 @@ export default function EditEventScreen({ route, navigation }) {
   return (
     <ScrollView style={styles.container}>
 
-      <Text style={styles.title}>Editar quedada</Text>
+      <Text style={styles.title}>{editedEvent.title}</Text>
 
       <View style={styles.iconSection}>
         <Ionicons name="create-outline" size={50} color="#d46bcf" />
