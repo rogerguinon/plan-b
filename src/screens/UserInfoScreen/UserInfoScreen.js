@@ -8,6 +8,7 @@ import {
   doc, setDoc, getDoc, collection, query, where, onSnapshot
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function UserInfoScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -19,19 +20,23 @@ export default function UserInfoScreen({ navigation }) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('📢 authStateChanged:', user);
-      if (user) {
-        setUid(user.uid);
-        setEmail(user.email);
-        await loadUserData(user.uid);
-        loadUserHistory(user.uid);
-      }
-      setLoading(false);
-    });
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    console.log('📢 authStateChanged:', user);
+    if (user) {
+      setUid(user.uid);
+      setEmail(user.email);
+      await loadUserData(user.uid);
+      loadUserHistory(user.uid);
+    } else {
+      // ✅ en web esto puede ser null si no está logueado aún
+      console.warn('⚠️ Usuario no autenticado');
+    }
+    setLoading(false);
+  });
 
-    return unsubscribe;
-  }, []);
+  return unsubscribe;
+}, []);
+
 
   const loadUserData = async (uid) => {
     try {
@@ -64,22 +69,29 @@ export default function UserInfoScreen({ navigation }) {
   };
 
   const pickImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
+  try {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
       Alert.alert('Permiso denegado', 'Se necesita acceso a la galería');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
       quality: 0.5,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
       setPhoto(uri);
     }
-  };
+  } catch (error) {
+    console.error('❌ Error al seleccionar imagen:', error);
+    Alert.alert('Error', 'No se pudo seleccionar la imagen.');
+  }
+};
+
 
   const handleSave = async () => {
     if (!uid) {
@@ -109,6 +121,15 @@ export default function UserInfoScreen({ navigation }) {
       </View>
     );
   }
+  if (!uid) {
+  return (
+    <View style={styles.container}>
+      <Text style={{ fontSize: 16, color: 'red', textAlign: 'center' }}>
+        ⚠️ No hay usuario autenticado. Inicia sesión.
+      </Text>
+    </View>
+  );
+}
 
   return (
   <ScrollView contentContainerStyle={styles.container}>
@@ -138,7 +159,10 @@ export default function UserInfoScreen({ navigation }) {
 
     {/* HISTORIAL DE QUEDADAS */}
     <View style={styles.historyContainer}>
-      <Text style={styles.historyHeader}>📚 Historial de quedadas</Text>
+      <View style={styles.historyHeaderContainer}>
+        <Ionicons name="archive-outline" size={20} color="#444" style={styles.historyIcon} />
+        <Text style={styles.historyHeader}>Historial de quedadas</Text>
+      </View>
       {history.length === 0 ? (
         <Text style={styles.noMeetings}>No hay quedadas finalizadas aún.</Text>
       ) : (
@@ -154,6 +178,7 @@ export default function UserInfoScreen({ navigation }) {
         ))
       )}
     </View>
+    
   </ScrollView>
 );
 
@@ -223,6 +248,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    alignItems: 'center',
   },
   historyHeader: {
     fontSize: 18,
@@ -257,4 +283,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
+  historyHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  historyIcon: {
+    marginRight: 8,
+  },
+
+  historyHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
 });

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
-import { FIREBASE_API_KEY } from '../../config/firebaseRest';
+
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/firebaseConfig';
 
 const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
@@ -13,27 +13,12 @@ export default function LoginScreen({ navigation }) {
 
   const handleEmailLogin = async () => {
     try {
-      const res = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password,
-            returnSecureToken: true,
-          }),
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        navigation.replace('Main');
-      } else {
-        Alert.alert('Error al iniciar sesión', data.error?.message || 'Error desconocido');
-      }
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo conectar con el servidor.');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("✅ Sesión iniciada:", userCredential.user);
+      navigation.replace('Main');
+    } catch (error) {
+      console.error("❌ Error al iniciar sesión:", error);
+      Alert.alert('Error al iniciar sesión', error.message || 'Error desconocido');
     }
   };
 
@@ -54,40 +39,46 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Plan B</Text>
+    <TouchableWithoutFeedback onPress={() => {
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+      }
+    }}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Plan B</Text>
 
-      <TextInput
-        placeholder="Correo electrónico"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Contraseña"
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          placeholder="Correo electrónico"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+        />
+        <TextInput
+          placeholder="Contraseña"
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleEmailLogin}>
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.registerText}>¿No tienes cuenta? Regístrate</Text>
+        </TouchableOpacity>
 
-      <View style={styles.separator}>
-        <Text style={styles.orText}>o</Text>
+        <View style={styles.separator}>
+          <Text style={styles.orText}>o</Text>
+        </View>
+
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+          <Text style={styles.buttonText}>Iniciar sesión con Google</Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
-        <Text style={styles.buttonText}>Iniciar sesión con Google</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 

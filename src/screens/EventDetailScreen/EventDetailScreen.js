@@ -6,7 +6,7 @@ import { useEventos } from '../../context/EventContext';
 
 
 export default function EventDetailScreen({ route, navigation }) {
-  const { event } = route.params;
+  const { event, onEliminar } = route.params;
   const { surveyMap, participantesPorEvento } = useEventos();
   const encuestas = surveyMap[event.id] || [];
   
@@ -31,11 +31,22 @@ export default function EventDetailScreen({ route, navigation }) {
 
   const [participantesFiltrados, setFilteredParticipants] = useState(participantes);
 
+  const formatearFecha = (fechaTexto) => {
+    const fecha = new Date(fechaTexto);
+    if (isNaN(fecha.getTime())) return fechaTexto;
+
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${fecha.getDate()} de ${meses[fecha.getMonth()]}, ${fecha.getFullYear()}`;
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('EditEvent')}
+            onPress={() => navigation.navigate('EditEvent', { event })}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -138,7 +149,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
       <Text style={styles.title}>{event.title}</Text>
 
-      <ScrollView contentContainerStyle={[styles.scrollContainer, { paddingRight: 10 }]}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.infoBox}>
           <Text style={styles.subtitle}>{event.description}</Text>
         </View>
@@ -151,7 +162,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
           <View style={styles.detailsRow}>
             <Ionicons name="calendar-outline" size={30} color="#d46bcf" />
-            <Text style={styles.detailText}>{event.date}</Text>
+            <Text style={styles.detailText}>{formatearFecha(event.date)}</Text>
           </View>
 
           <View style={styles.detailsRow}>
@@ -251,13 +262,7 @@ export default function EventDetailScreen({ route, navigation }) {
             
             <View>
               <Text style={styles.sectionTitle}>Votaciones</Text>
-              {encuestas.length > 0 ? (
-                encuestas.map((encuesta) => (
-                  <Text key={encuesta.id}>{encuesta.question}</Text>
-                ))
-              ) : (
-                <Text>Todavía no hay encuestas para esta quedada.</Text>
-              )}
+              {encuestas.map((encuesta) => (<Text key={encuesta.id}>{encuesta.question}</Text>))}
             </View>
 
             <MaterialCommunityIcons
@@ -325,13 +330,15 @@ export default function EventDetailScreen({ route, navigation }) {
             </View>
           )}
         </View>
+
+        {/* Chat */}
+        <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
+          <Text style={styles.chatLinkText}>Chat</Text>
+          <Ionicons name="arrow-down" size={16} color="#007AFF" style={{ marginLeft: 4 }} />
+        </TouchableOpacity>
+
       </ScrollView>
 
-      {/* Chat */}
-      <TouchableOpacity style={styles.chatLink} onPress={() => navigation.navigate('ChatQuedada', { id: event.id })}>
-        <Text style={styles.chatLinkText}>Chat</Text>
-        <Ionicons name="arrow-down" size={16} color="#007AFF" style={{ marginLeft: 4 }} />
-      </TouchableOpacity>
 
     </View>
   );  
@@ -607,12 +614,13 @@ const styles = StyleSheet.create({
   },
   
   chatLink: {
-    marginTop: 20,
+    marginTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
     paddingVertical: 4,
     paddingHorizontal: 8,
+    marginTop: 30,
   },
 
   chatLinkText: {

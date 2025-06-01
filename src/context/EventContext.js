@@ -5,6 +5,7 @@ const EventContext = createContext();
 
 // Hook para acceder fácilmente
 export const useEventos = () => useContext(EventContext);
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // QUEDADAS
 const Events = [
@@ -12,7 +13,7 @@ const Events = [
     id: '1',
     title: 'Partido Barça vs Espanyol',
     description: 'La idea es quedar antes para ir todos juntos',
-    date: 'May 16, 2025',
+    date: new Date(2025, 9, 17),
     time: '21:00',
     location: 'Nou Camp Nou',
     participants: [
@@ -26,7 +27,7 @@ const Events = [
     id: '2',
     title: 'Concierto Bad Bunny',
     description: 'Llevad cena y bebida para la cola',
-    date: 'May 23, 2026',
+    date: new Date(2026, 4, 23),
     time: '20:00',
     location: 'Estadi Olímpic Lluís Companys',
     image: 'https://legendswillneverdie.com/wp-content/uploads/2025/01/photo-output-3.jpg?w=1024',
@@ -44,7 +45,7 @@ const Events = [
     id: '3',
     title: 'Cumpleaños de Sandra',
     description: 'Estáis invitados a la fiesta de cumpleaños.',
-    date: 'Feb 20, 2026',
+    date: new Date(2025, 7, 20),
     time: '18:00',
     location: 'C/ de Vilamarí, 90, Barcelona',
     image: 'https://m.media-amazon.com/images/I/617kglB+Y6L._AC_UF1000,1000_QL80_.jpg',
@@ -60,6 +61,54 @@ const Events = [
     ],
   },
 ];
+
+
+// GRUPOS (mock-up)
+const Groups = [
+  {
+    id: 'grupo1',
+    nombre: 'Amigos UPF',
+    participantes: 5,
+    quedadas: 3,
+    imagen: 'https://pbs.twimg.com/profile_images/926048284912873472/EEiD1L0S_400x400.jpg',
+    quedadasActuales: [
+      { id: 'q1', titulo: 'Partido Barça vs Espanyol', lugar: 'Nou Camp Nou', fecha: 'May 16, 2025' }
+    ],
+    quedadasPasadas: [
+      { id: 'q2', titulo: 'Cena Erasmus', lugar: 'Restaurante Yaya', fecha: 'Jun 10, 2024' },
+      { id: 'q3', titulo: 'Escape Room', lugar: 'Trap Barcelona', fecha: 'May 2, 2025' },
+    ],
+    miembros: [
+      { id: 'm1', nombre: 'Laura', foto: 'https://randomuser.me/api/portraits/women/45.jpg'},
+      { id: 'm2', nombre: 'Marc', foto:  'https://randomuser.me/api/portraits/men/10.jpg'},
+      { id: 'm3', nombre: 'Sergi', foto:  'https://randomuser.me/api/portraits/men/22.jpg'},
+      { id: 'm4', nombre: 'Clara', foto:  'https://randomuser.me/api/portraits/women/35.jpg'},
+    ]
+  },
+  {
+    id: 'grupo2',
+    nombre: 'Familia',
+    participantes: 5,
+    quedadas: 2,
+    imagen: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', // icono familia por ejemplo
+    quedadasActuales: [
+
+    ],
+    
+    quedadasPasadas: [
+      { id: 'q1', titulo: 'Cena Navidad', lugar: 'Casa de mamá', fecha: 'Dec 24, 2025' },
+      { id: 'q2', titulo: 'Barbacoa Verano', lugar: 'Parque Central', fecha: 'Jul 15, 2025' }
+    ],
+    miembros: [
+      { id: 'm4', nombre: 'María', foto: 'https://randomuser.me/api/portraits/women/5.jpg' },
+      { id: 'm5', nombre: 'Javier', foto: 'https://randomuser.me/api/portraits/men/7.jpg' },
+      { id: 'm6', nombre: 'Carlos', foto: 'https://randomuser.me/api/portraits/men/40.jpg' },
+      { id: 'm7', nombre: 'Elena', foto: 'https://randomuser.me/api/portraits/women/52.jpg' },
+      { id: 'm8', nombre: 'Pablo' }
+    ]
+  }
+]
+
 
 // ENCUESTAS (renombramos para evitar conflicto con el estado)
 export const SurveyMap = {
@@ -148,15 +197,20 @@ export const SurveyMap = {
 // Componente proveedor del contexto
 import { getData, storeData } from '../utils/storage'; // asegúrate de tener esto
 const KEY_EVENTOS = "EVENTOS"; // clave para AsyncStorage
+const KEY_GROUPS = "GRUPOS"; // clave para AsyncStorage
 
 export const EventProvider = ({ children }) => {
   const [eventos, setEventos] = useState([]);
   const [surveyMap, setSurveyMap] = useState(SurveyMap);
   const [participantesPorEvento, setParticipantesPorEvento] = useState({});
+  const [groups, setGroups] = useState(Groups);
 
   // Cargar eventos desde almacenamiento al inicio
   useEffect(() => {
+
     const cargarEventos = async () => {
+
+      // Cargar eventos
       const almacenados = await getData(KEY_EVENTOS);
       if (Array.isArray(almacenados) && almacenados.length > 0) {
         setEventos(almacenados);
@@ -176,6 +230,7 @@ export const EventProvider = ({ children }) => {
         setParticipantesPorEvento(map);
         await storeData(KEY_EVENTOS, Events); // guardar los mock-up como datos iniciales
       }
+
     };
     cargarEventos();
   }, []);
@@ -207,6 +262,13 @@ export const EventProvider = ({ children }) => {
     }
   };
 
+  const editarEvento = async (eventoEditado) => {
+    const nuevosEventos = eventos.map(e => e.id === eventoEditado.id ? eventoEditado : e);
+    setEventos(nuevosEventos);
+    await AsyncStorage.setItem('eventos', JSON.stringify(nuevosEventos));
+  };
+
+
 
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({
@@ -222,11 +284,43 @@ export const EventProvider = ({ children }) => {
     }));
   };
 
+  const deleteEvento = async (id) => {
+    try {
+      const nuevosEventos = eventos.filter(e => e.id !== id);
+      setEventos(nuevosEventos);
+      await AsyncStorage.setItem(KEY_EVENTOS, JSON.stringify(nuevosEventos));
+
+      // También eliminamos del mapa de participantes si existe
+      setParticipantesPorEvento((prev) => {
+        const actualizado = { ...prev };
+        delete actualizado[id];
+        return actualizado;
+      });
+
+      // Y del mapa de encuestas, si lo deseas
+      setSurveyMap((prev) => {
+        const actualizado = { ...prev };
+        delete actualizado[id];
+        return actualizado;
+      });
+
+    } catch (error) {
+      console.error("Error al eliminar el evento:", error);
+      throw error;
+    }
+  };
+
+
+
   return (
     <EventContext.Provider value={{
       eventos,
+      groups,
+      setGroups,
       setEventos,
       agregarEvento,
+      editarEvento,
+      deleteEvento,
       participantesPorEvento,
       agregarParticipante,
       surveyMap,
