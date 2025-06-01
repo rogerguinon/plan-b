@@ -8,6 +8,7 @@ import {
   doc, setDoc, getDoc, collection, query, where, onSnapshot
 } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function UserInfoScreen({ navigation }) {
   const [name, setName] = useState('');
@@ -158,7 +159,10 @@ export default function UserInfoScreen({ navigation }) {
 
     {/* HISTORIAL DE QUEDADAS */}
     <View style={styles.historyContainer}>
-      <Text style={styles.historyHeader}>📚 Historial de quedadas</Text>
+      <View style={styles.historyHeaderContainer}>
+        <Ionicons name="archive-outline" size={20} color="#444" style={styles.historyIcon} />
+        <Text style={styles.historyHeader}>Historial de quedadas</Text>
+      </View>
       {history.length === 0 ? (
         <Text style={styles.noMeetings}>No hay quedadas finalizadas aún.</Text>
       ) : (
@@ -244,6 +248,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    alignItems: 'center',
   },
   historyHeader: {
     fontSize: 18,
@@ -278,4 +283,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
   },
+  historyHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  historyIcon: {
+    marginRight: 8,
+  },
+
+  historyHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+
 });

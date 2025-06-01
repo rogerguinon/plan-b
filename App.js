@@ -12,6 +12,7 @@ import CreateEventScreen from './src/screens/CreateEventScreen/CreateEventScreen
 import ChatQuedadaScreen from './src/screens/ChatQuedadaScreen/ChatQuedadaScreen';
 import UserInfoScreen from './src/screens/UserInfoScreen/UserInfoScreen';
 import EditEventScreen from './src/screens/EditEventScreen/EditEventScreen';
+import GroupDetailScreen from './src/screens/GroupDetailScreen/GroupDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,16 +24,17 @@ export default function App() {
         <Stack.Navigator initialRouteName="Login"> 
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
+          <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false, title: 'Inicio'}}/>
           <Stack.Screen name="UserInfo" component={UserInfoScreen} />
-          <Stack.Screen name="Detalles" component={EventDetailScreen} />
+          <Stack.Screen name="Detalles" component={EventDetailScreen} options={{headerBackTitle: 'Inicio'}} />
           <Stack.Screen name="Crear" component={CreateSurveyScreen} />
           <Stack.Screen name="Editar" component={EditSurveyScreen} />
           <Stack.Screen name="Encuestas" component={SurveysScreen} />
-          <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{title: 'Crear quedada'}}/>
           <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} 
                     options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
           <Stack.Screen name="EditEvent" component={EditEventScreen}/>
+          <Stack.Screen name="DetallesGrupo" component={GroupDetailScreen} options={{title: 'Detalles'}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </EventProvider>

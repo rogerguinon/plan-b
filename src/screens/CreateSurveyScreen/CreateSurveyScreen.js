@@ -32,10 +32,12 @@ export default function CreateSurveyScreen({ navigation }) {
   const onAddSurvey = route.params?.onAddSurvey;
   const eventId = route.params?.eventId || 'demo';
 
+  const trimmedTitle = title.trim();
+  const validOptions = options.map(o => o.trim()).filter(o => o !== '');
+  const isFormValid = trimmedTitle.length > 0 && validOptions.length >= 2;
 
   const handleSubmit = async () => {
-    const trimmedTitle = title.trim();
-    const validOptions = options.map(o => o.trim()).filter(o => o !== '');
+    if (!isFormValid) return;
 
     if (!trimmedTitle) {
       Alert.alert('Error', 'Por favor, añade un título para la encuesta.');
@@ -70,7 +72,7 @@ export default function CreateSurveyScreen({ navigation }) {
     }
   };
 
- return (
+  return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flex: 1 }}
@@ -120,11 +122,21 @@ export default function CreateSurveyScreen({ navigation }) {
           </View>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => navigation.goBack()}
+            >
               <Text style={styles.cancelText}>Cancelar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.acceptButton} onPress={handleSubmit}>
+            <TouchableOpacity
+              style={[
+                styles.acceptButton,
+                { backgroundColor: title.trim() && options.filter(o => o.trim() !== '').length >= 2 ? '#D48ABD' : '#E1AEDD' }
+              ]}
+              onPress={handleSubmit}
+              disabled={!(title.trim() && options.filter(o => o.trim() !== '').length >= 2)}
+            >
               <Text style={styles.acceptText}>Aceptar</Text>
             </TouchableOpacity>
           </View>
@@ -132,6 +144,7 @@ export default function CreateSurveyScreen({ navigation }) {
       </ScrollView>
     </KeyboardAvoidingView>
   );
+
 }
 
 

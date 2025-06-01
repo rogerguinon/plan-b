@@ -26,9 +26,9 @@ export default function AppTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Inicio" component={MainMenuScreen} />
-      <Tab.Screen name="Eventos" component={CalendarScreen} />
-      <Tab.Screen name="Perfil" component={UserInfoScreen} />
+      <Tab.Screen name="Inicio" component={MainMenuScreen} options={{headerShown:true}}/>
+      <Tab.Screen name="Eventos" component={CalendarScreen} options={{headerShown:true}}/>
+      <Tab.Screen name="Perfil" component={UserInfoScreen} options={{headerShown:true}} />
     </Tab.Navigator>
   );
 }
