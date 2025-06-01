@@ -1,17 +1,23 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useExpenses } from '../../context/ExpenseContext'; // Adjust the import path as needed
 
-const mockExpenses = [
-  { id: '1', date: '16 may 2025', title: 'Bebida', amount: 21.80, payer: 'Roger' },
-  { id: '2', date: '16 may 2025', title: 'Patatas Jamón', amount: 3.05, payer: 'Ana' },
-  { id: '3', date: '15 may 2025', title: 'Pastel', amount: 53.65, payer: 'Martí' },
-  { id: '4', date: '13 may 2025', title: 'McDonald\'s', amount: 39.74, payer: 'Roger' },
-];
-
-const ExpensesScreen = () => {
+const ExpensesScreen = ({ event }) => {
   const navigation = useNavigation();
+
+  const { getExpensesForEvent } = useExpenses();
+  const expenses = event ? getExpensesForEvent(event.id) : [];
+
+  const safeExpenses = Array.isArray(expenses) ? expenses : [];
+
+  // Set the header title to the event name
+  navigation.setOptions({ title: 'Gastos' });
+
+  const totalAmount = safeExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const currentUserId = 'me'; // Replace with actual user ID
+  const myAmount = safeExpenses.reduce((sum, e) => (e.payer === currentUserId ? sum + e.amount : sum), 0);
 
   const renderExpenseItem = ({ item }) => (
     <View style={styles.expenseItem}>
@@ -23,30 +29,32 @@ const ExpensesScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header Info */}
       <View style={styles.header}>
         <View style={styles.amountBox}>
           <Text style={styles.label}>Mis Gastos</Text>
-          <Text style={styles.amount}>61,54€</Text>
+          <Text style={styles.amount}>{myAmount.toFixed(2)}€</Text>
         </View>
         <View style={styles.amountBox}>
           <Text style={styles.label}>Gastos Totales</Text>
-          <Text style={styles.amount}>118,24€</Text>
+          <Text style={styles.amount}>{totalAmount.toFixed(2)}€</Text>
         </View>
       </View>
 
-      {/* Expenses list */}
       <FlatList
-        data={mockExpenses}
+        data={safeExpenses}
         renderItem={renderExpenseItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
+            No hay gastos para este evento.
+          </Text>
+        }
       />
 
-      {/* Add Button */}
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('CreateExpense')}
+        onPress={() => navigation.navigate('CreateExpense', { eventId: event.id })}
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>

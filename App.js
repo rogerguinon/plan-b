@@ -23,7 +23,7 @@ export default function App() {
     <EventProvider>
       <ExpenseProvider>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="GastosEvento"> 
+          <Stack.Navigator initialRouteName="Main"> 
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false }}/>
@@ -34,7 +34,7 @@ export default function App() {
             <Stack.Screen name="Encuestas" component={SurveysScreen} />
             <Stack.Screen name="CreateEvent" component={CreateEventScreen} options={{ headerShown: false }}/>
             <Stack.Screen name="ChatQuedada" component={ChatQuedadaScreen} options={{presentation: 'modal', animation: 'slide_from_bottom'}} />
-            <Stack.Screen name="GastosEvento" component={ExpensesTabs} options={{ title: 'Cumple Martí' }} />
+            <Stack.Screen name="GastosEvento" component={ExpensesTabs} />
             <Stack.Screen name="CreateExpense" component={CreateExpenseScreen} options={{ title: 'Nuevo Gasto' }} />
           </Stack.Navigator>
         </NavigationContainer>

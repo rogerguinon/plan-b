@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Switch, ScrollView } from 'react-native';
 import { useExpenses } from '../../context/ExpenseContext';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const users = ['Ana', 'Arnau', 'Estela', 'Martí', 'Omar', 'Roger'];
 
 export default function CreateExpenseScreen() {
+  const route = useRoute();
+  const { eventId } = route.params;
   const [expenseName, setExpenseName] = useState('');
   const [amount, setAmount] = useState('');
   const [payer, setPayer] = useState(users[0]);
@@ -25,15 +27,15 @@ export default function CreateExpenseScreen() {
 
     if (!expenseName || !amount || !payer || included.length === 0) return;
 
-    addExpense({
-      name: expenseName,
+    addExpense(eventId, {
+      title: expenseName,
       amount: parseFloat(amount),
       payer,
       included,
       date: new Date().toISOString(),
     });
 
-    navigation.goBack(); // or navigate to Gastos
+    navigation.goBack();
   };
 
   return (
