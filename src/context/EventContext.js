@@ -13,7 +13,7 @@ const Events = [
     id: '1',
     title: 'Partido Barça vs Espanyol',
     description: 'La idea es quedar antes para ir todos juntos',
-    date: 'May 16, 2025',
+    date: new Date(2025, 9, 17),
     time: '21:00',
     location: 'Nou Camp Nou',
     participants: [
@@ -27,7 +27,7 @@ const Events = [
     id: '2',
     title: 'Concierto Bad Bunny',
     description: 'Llevad cena y bebida para la cola',
-    date: 'May 23, 2026',
+    date: new Date(2026, 4, 23),
     time: '20:00',
     location: 'Estadi Olímpic Lluís Companys',
     image: 'https://legendswillneverdie.com/wp-content/uploads/2025/01/photo-output-3.jpg?w=1024',
@@ -45,7 +45,7 @@ const Events = [
     id: '3',
     title: 'Cumpleaños de Sandra',
     description: 'Estáis invitados a la fiesta de cumpleaños.',
-    date: 'Feb 20, 2026',
+    date: new Date(2025, 7, 20),
     time: '18:00',
     location: 'C/ de Vilamarí, 90, Barcelona',
     image: 'https://m.media-amazon.com/images/I/617kglB+Y6L._AC_UF1000,1000_QL80_.jpg',
@@ -207,6 +207,7 @@ export const EventProvider = ({ children }) => {
 
   // Cargar eventos desde almacenamiento al inicio
   useEffect(() => {
+
     const cargarEventos = async () => {
 
       // Cargar eventos
@@ -267,6 +268,8 @@ export const EventProvider = ({ children }) => {
     await AsyncStorage.setItem('eventos', JSON.stringify(nuevosEventos));
   };
 
+
+
   const agregarParticipante = (eventoId, participante) => {
     setParticipantesPorEvento((prev) => ({
       ...prev,
@@ -306,6 +309,7 @@ export const EventProvider = ({ children }) => {
       throw error;
     }
   };
+
 
 
   return (

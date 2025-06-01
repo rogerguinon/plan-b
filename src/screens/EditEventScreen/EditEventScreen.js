@@ -31,20 +31,30 @@ export default function EditEventScreen({ route, navigation }) {
   };
 
   const confirmarFecha = () => {
-    setEditedEvent(prev => ({
-      ...prev,
-      date: new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate(), prev.date.getHours(), prev.date.getMinutes())
-    }));
+    const nuevaFecha = new Date(
+      tempDate.getFullYear(),
+      tempDate.getMonth(),
+      tempDate.getDate(),
+      editedEvent.date.getHours(),
+      editedEvent.date.getMinutes()
+    );
+    setEditedEvent(prev => ({ ...prev, date: nuevaFecha }));
+    setDate(nuevaFecha); // <-- importante
     setShowDatePicker(false);
   };
 
   const cancelarFecha = () => setShowDatePicker(false);
 
   const confirmarHora = () => {
-    setEditedEvent(prev => ({
-      ...prev,
-      date: new Date(prev.date.getFullYear(), prev.date.getMonth(), prev.date.getDate(), tempTime.getHours(), tempTime.getMinutes())
-    }));
+    const nuevaFecha = new Date(
+      editedEvent.date.getFullYear(),
+      editedEvent.date.getMonth(),
+      editedEvent.date.getDate(),
+      tempTime.getHours(),
+      tempTime.getMinutes()
+    );
+    setEditedEvent(prev => ({ ...prev, date: nuevaFecha }));
+    setTime(nuevaFecha); // <-- importante
     setShowTimePicker(false);
   };
 
@@ -77,7 +87,13 @@ export default function EditEventScreen({ route, navigation }) {
 
     try {
       await editarEvento(eventoActualizado);
-      navigation.navigate('Main');
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'Main' },
+          { name: 'Detalles', params: { event: eventoActualizado } },
+        ],
+      });
     } catch (error) {
       console.error('Error al editar evento:', error);
       Alert.alert('Error', 'No se pudo guardar el evento.');
@@ -111,9 +127,6 @@ export default function EditEventScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate('Main')} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-      </TouchableOpacity>
 
       <Text style={styles.title}>Editar quedada</Text>
 

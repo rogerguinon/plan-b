@@ -26,7 +26,7 @@ export default function App() {
           <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Main" component={AppTabs} options={{ headerShown: false, title: 'Inicio'}}/>
           <Stack.Screen name="UserInfo" component={UserInfoScreen} />
-          <Stack.Screen name="Detalles" component={EventDetailScreen} />
+          <Stack.Screen name="Detalles" component={EventDetailScreen} options={{headerBackTitle: 'Inicio'}} />
           <Stack.Screen name="Crear" component={CreateSurveyScreen} />
           <Stack.Screen name="Editar" component={EditSurveyScreen} />
           <Stack.Screen name="Encuestas" component={SurveysScreen} />

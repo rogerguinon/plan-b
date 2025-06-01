@@ -31,6 +31,17 @@ export default function EventDetailScreen({ route, navigation }) {
 
   const [participantesFiltrados, setFilteredParticipants] = useState(participantes);
 
+  const formatearFecha = (fechaTexto) => {
+    const fecha = new Date(fechaTexto);
+    if (isNaN(fecha.getTime())) return fechaTexto;
+
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${fecha.getDate()} de ${meses[fecha.getMonth()]}, ${fecha.getFullYear()}`;
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -151,7 +162,7 @@ export default function EventDetailScreen({ route, navigation }) {
 
           <View style={styles.detailsRow}>
             <Ionicons name="calendar-outline" size={30} color="#d46bcf" />
-            <Text style={styles.detailText}>{event.date}</Text>
+            <Text style={styles.detailText}>{formatearFecha(event.date)}</Text>
           </View>
 
           <View style={styles.detailsRow}>
@@ -251,13 +262,7 @@ export default function EventDetailScreen({ route, navigation }) {
             
             <View>
               <Text style={styles.sectionTitle}>Votaciones</Text>
-              {encuestas.length > 0 ? (
-                encuestas.map((encuesta) => (
-                  <Text key={encuesta.id}>{encuesta.question}</Text>
-                ))
-              ) : (
-                <Text>Todavía no hay encuestas</Text>
-              )}
+              {encuestas.map((encuesta) => (<Text key={encuesta.id}>{encuesta.question}</Text>))}
             </View>
 
             <MaterialCommunityIcons

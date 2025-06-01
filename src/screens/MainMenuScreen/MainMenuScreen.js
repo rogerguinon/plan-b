@@ -21,7 +21,23 @@ export default function MainMenuScreen({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  console.log('Even itemos:', eventos);
+  const formatearFecha = (fechaTexto) => {
+    const fecha = new Date(fechaTexto);
+    if (isNaN(fecha.getTime())) return fechaTexto;
+
+    const meses = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${fecha.getDate()} de ${meses[fecha.getMonth()]}, ${fecha.getFullYear()}`;
+  };
+
+  const eventosOrdenados = [...eventos].sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
+  
+  
+
 
   const renderEvent = ({ item }) => (
     <View style={[styles.card, { paddingVertical: 25 }]}>
@@ -42,7 +58,7 @@ export default function MainMenuScreen({ navigation }) {
             {item.date && (
               <View style={styles.infoRow}>
                 <Ionicons name="calendar-outline" size={16} color="#666" style={styles.icon} />
-                <Text style={styles.infoText}>{item.date}</Text>
+                <Text style={styles.infoText}>{formatearFecha(item.date)}</Text>
               </View>
             )}
           </View>
@@ -93,7 +109,7 @@ export default function MainMenuScreen({ navigation }) {
 
       {activeTab === 'Quedadas actuales' ? (
         <FlatList
-          data={eventos}
+          data={eventosOrdenados}
           keyExtractor={(item) => item.id}
           renderItem={renderEvent}
           extraData={refreshKey}
