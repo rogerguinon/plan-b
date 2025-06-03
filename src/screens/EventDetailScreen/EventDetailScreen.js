@@ -281,8 +281,6 @@ export default function EventDetailScreen({ route, navigation }) {
             
             <View>
               <Text style={styles.sectionTitle}>Gastos conjuntos</Text>
-              <Text>Ejemplo 1</Text>
-              <Text>Ejemplo 2</Text>
             </View>
 
             <MaterialCommunityIcons
@@ -365,6 +363,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
+    height: 65,
   },
 
   participantsSection: {
@@ -374,7 +373,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  sectionTitle: { fontWeight: 'bold', color: 'black' },
+  sectionTitle: { fontWeight: 'bold', color: 'black', fontSize: 14 },
 
   participantRow: {
     flexDirection: 'row',
@@ -627,4 +626,12 @@ const styles = StyleSheet.create({
     color: '#007aff', 
     fontSize: 16,
   },
+  detailsColumn: {
+    flexDirection: 'column',
+    gap: 10,
+    marginTop: 5,
+    marginBottom: 5,
+    marginLeft: 10,
+  },
+
 });

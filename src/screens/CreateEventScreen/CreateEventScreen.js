@@ -99,10 +99,17 @@ export default function CreateEventScreen({ navigation }) {
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
       <Text style={styles.title}>Nueva quedada</Text>
 
-      <View style={styles.iconSection}>
-        <Ionicons name="people-outline" size={50} color="#d46bcf" />
-        <Text style={styles.iconText}>Añadir participantes</Text>
-      </View>
+      <View style={styles.topButtonsContainer}>
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="image-outline" size={28} color="#d46bcf" />
+            <Text style={styles.iconLabel}>Imagen</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="people-outline" size={28} color="#d46bcf" />
+            <Text style={styles.iconLabel}>Participantes</Text>
+          </TouchableOpacity>
+        </View>
 
       <View style={styles.form}>
         <TextInput
@@ -192,15 +199,9 @@ export default function CreateEventScreen({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Lugar"
+          placeholder="Lugar de la quedada"
           value={location}
           onChangeText={setLocation}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="URL de imagen (opcional)"
-          value={image}
-          onChangeText={setImage}
         />
 
         <TouchableOpacity style={styles.createButton} onPress={handleCreate}>
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     alignItems: 'center',
-    marginVertical: 8, // <- Añadido también aquí
+    marginVertical: 40, // <- Añadido también aquí
   },
   createText: { color: '#fff', fontWeight: 'bold' },
   pickerButtons: {
@@ -257,4 +258,27 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 10,
   },
+  topButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+
+  iconButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3e8f4',
+    borderRadius: 12,
+    padding: 12,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+
+  iconLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#555',
+  },
+
 });

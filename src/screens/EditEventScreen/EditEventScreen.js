@@ -130,10 +130,18 @@ export default function EditEventScreen({ route, navigation }) {
 
       <Text style={styles.title}>{editedEvent.title}</Text>
 
-      <View style={styles.iconSection}>
-        <Ionicons name="create-outline" size={50} color="#d46bcf" />
-        <Text style={styles.iconText}>Modifica los datos</Text>
-      </View>
+        <View style={styles.topButtonsContainer}>
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="image-outline" size={28} color="#d46bcf" />
+            <Text style={styles.iconLabel}>Imagen</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.iconButton}>
+            <Ionicons name="people-outline" size={28} color="#d46bcf" />
+            <Text style={styles.iconLabel}>Participantes</Text>
+          </TouchableOpacity>
+        </View>
+      
 
       <View style={styles.form}>
         <TextInput
@@ -237,28 +245,20 @@ export default function EditEventScreen({ route, navigation }) {
         )}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {marginBottom: 20}]}
           placeholder="Lugar"
           value={editedEvent.location}
           onChangeText={(text) => setEditedEvent(prev => ({ ...prev, location: text }))}
           placeholderTextColor="#999"
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="URL de imagen (opcional)"
-          value={editedEvent.image || ''}
-          onChangeText={(text) => setEditedEvent(prev => ({ ...prev, image: text }))}
-          placeholderTextColor="#999"
-        />
-
-        <TouchableOpacity style={styles.createButton} onPress={handleSave}>
+        <TouchableOpacity style={[styles.botonBase, styles.createButton]} onPress={handleSave}>
           <Text style={styles.createText}>Guardar cambios</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleEliminarEvento}
-          style={styles.deleteButton}
+          style={[styles.botonBase, styles.deleteButton]}
         >
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Eliminar quedada</Text>
         </TouchableOpacity>
@@ -286,12 +286,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     fontSize: 14,
   },
-  createButton: {
-    backgroundColor: '#d46bcf',
+  botonBase: {
     padding: 14,
     borderRadius: 12,
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: 15,
+  },
+  createButton: {
+    backgroundColor: '#d46bcf',
   },
   createText: { color: '#fff', fontWeight: 'bold' },
   pickerButtons: {
@@ -310,10 +312,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     backgroundColor: '#ff4d4d',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
   },
   inputRow: {
     flexDirection: 'row',
@@ -327,5 +325,27 @@ const styles = StyleSheet.create({
   trashIcon: {
     marginLeft: 8,
     padding: 10,
+  },
+    topButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+
+  iconButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3e8f4',
+    borderRadius: 12,
+    padding: 12,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+
+  iconLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#555',
   },
 });
