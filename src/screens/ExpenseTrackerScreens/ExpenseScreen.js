@@ -13,7 +13,9 @@ const ExpensesScreen = ({ event }) => {
   const safeExpenses = Array.isArray(expenses) ? expenses : [];
 
   // Set the header title to the event name
-  navigation.setOptions({ title: 'Gastos' });
+  useEffect(() => {
+    navigation.setOptions({ title: 'Gastos' });
+  }, [navigation]);
 
   const totalAmount = safeExpenses.reduce((sum, e) => sum + e.amount, 0);
   const currentUserId = 'me'; // Replace with actual user ID

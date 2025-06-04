@@ -73,7 +73,7 @@ export default function CreateExpenseScreen() {
         />
 
         <Text style={styles.label}>Participantes</Text>
-        <ScrollView style={{ maxHeight: 300 }}> {/* or use flex: 1 if full screen */}
+        <ScrollView style={{ maxHeight: 300 }}>
             {users.map(user => (
                 <View key={user} style={styles.switchContainer}>
                 <Text>{user}</Text>
